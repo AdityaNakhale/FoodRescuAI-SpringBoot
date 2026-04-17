@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${donor.id != null ? 'Update Donor Profile | FoodBridge AI' : 'Donor Registration | FoodBridge AI'}">Donor Registration | FoodBridge AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- INTERNAL CSS -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --dark: #0f172a;
+            --slate-100: #f1f5f9;
+            --slate-500: #64748b;
+            --glass: rgba(255, 255, 255, 0.9);
+            --radius: 1rem;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.1), transparent),
+            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.05), #f8fafc);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .fb-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.2), transparent);
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--slate-500);
+            margin-bottom: 0.5rem;
+            margin-left: 0.25rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .fb-btn-submit {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            width: 100%;
+            border-radius: 1rem;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .fb-btn-submit:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .locate-btn {
+            background: white;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .locate-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .coordinate-badge {
+            background: #f1f5f9;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            border: 1px dashed #cbd5e1;
+            min-width: 100px;
+        }
+
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 1rem;
+            border: 2px solid #e2e8f0;
+            margin-top: 1rem;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e1;
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.02);
+        }
+    </style>
+</head>
+<body class="py-12 px-4">
+
+<div class="max-w-4xl mx-auto">
+    <!-- Brand Header -->
+    <div class="text-center mb-12">
+        <div class="inline-flex items-center gap-2 mb-4">
+            <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl">
+                <i class="fas fa-hand-holding-heart text-xl"></i>
+            </div>
+            <span class="text-3xl font-black tracking-tight">FoodBridge<span class="text-emerald-600">AI</span></span>
+        </div>
+        <h1 class="text-4xl font-black text-slate-900 mb-2"
+            th:text="${donor.id != null ? 'Update Donor Profile' : 'Donor Registration'}">Donor Registration</h1>
+        <p class="text-slate-500"
+           th:text="${donor.id != null ? 'Modify your contact information and donation preferences below.' : 'Join our network to turn surplus food into community impact.'}">Join our network to turn surplus food into community impact.</p>
+    </div>
+
+    <!-- Thymeleaf Form Binding -->
+    <form id="donorRegistrationForm" th:action="${donor.id != null ? '/update/donor' : '/register/donor'}" th:object="${donor}" method="post" class="fb-card p-8 md:p-12 space-y-10" enctype="multipart/form-data">
+
+        <!-- HIDDEN ID FIELD -->
+        <input type="hidden" th:field="*{id}">
+
+        <!-- 1. PERSONAL IDENTITY -->
+        <section>
+            <div class="form-section-title">
+                <i class="fas fa-user"></i> Personal Details
+            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="input-group md:col-span-2">
+                    <label>Full Name</label>
+                    <input type="text" id="fullName" th:field="*{fullName}" placeholder="Enter your full name" required>
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" th:field="*{email}" placeholder="yourname@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="mobile" th:field="*{mobile}" placeholder="+1 (555) 000-0000" required>
+                </div>
+                <div class="input-group md:col-span-2">
+                    <label th:text="${donor.id != null ? 'New Password (Leave blank to keep current)' : 'Password'}">Password</label>
+                    <input type="password" id="password" th:field="*{password}" placeholder="Create a strong password" th:required="${donor.id == null}">
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. DONOR & ORGANIZATION TYPE -->
+        <section>
+            <div class="form-section-title">
+                <i class="fas fa-building"></i> Donor Information
+            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="input-group">
+                    <label>Donor Type</label>
+                    <select id="donorType" th:field="*{donorType}" required>
+                        <option value="">Select Category</option>
+                        <option value="individual">Individual Donor</option>
+                        <option value="restaurant">Restaurant / Cafe</option>
+                        <option value="hotel">Hotel / Banquet</option>
+                        <option value="supermarket">Supermarket</option>
+                        <option value="caterer">Catering Service</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Organization Name (Optional)</label>
+                    <input type="text" id="organizationName" th:field="*{organizationName}" placeholder="E.g. Green Palace Hotel">
+                </div>
+                <div class="input-group md:col-span-2">
+                    <label>FSSAI License Number (Recommended for Businesses)</label>
+                    <input type="text" id="fssai" th:field="*{fssai}" placeholder="14-digit FSSAI number">
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. FOOD DETAILS -->
+        <section>
+            <div class="form-section-title">
+                <i class="fas fa-utensils"></i> Typical Food Surplus
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="input-group">
+                    <label>Primary Food Type</label>
+                    <select id="foodType" th:field="*{foodType}" required>
+                        <option value="">Select Type</option>
+                        <option value="cooked">Cooked Meals</option>
+                        <option value="raw">Raw Materials / Groceries</option>
+                        <option value="bakery">Bakery Items</option>
+                        <option value="veg_fruit">Fruits & Vegetables</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Avg. Quantity per Donation</label>
+                    <input type="text" id="quantity" th:field="*{quantity}" placeholder="e.g. 10kg or 25 packets" required>
+                </div>
+                <div class="input-group">
+                    <label>Preferred Pickup Time</label>
+                    <input type="text" id="pickupTime" th:field="*{pickupTime}" placeholder="e.g. 9 PM - 11 PM" required>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. VERIFICATION DOCUMENTS -->
+        <section>
+            <div class="form-section-title">
+                <i class="fas fa-file-shield"></i> Verification Documents
+            </div>
+            <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt text-3xl text-slate-300 mb-2"></i>
+                <p class="font-bold text-slate-600" th:text="${donor.id != null ? 'Update Food License (Optional)' : 'Upload Food License / FSSAI Certificate'}">Upload Food License / FSSAI Certificate</p>
+                <p class="text-xs text-slate-400">PDF, JPG or PNG (Max 5MB)</p>
+                <input type="file" id="fileInput" name="licenseFile" class="hidden" onchange="updateFileLabel(this)">
+                <div id="fileInfo" class="mt-3 text-sm font-bold text-emerald-600 hidden">
+                    <i class="fas fa-file-alt mr-1"></i> <span id="fileNameDisplay">file_name.pdf</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. CONTACT & LOCATION -->
+        <section>
+            <div class="form-section-title">
+                <i class="fas fa-map-marker-alt"></i> Location & GPS
+            </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="input-group md:col-span-2 space-y-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="!mb-0">Pickup Address</label>
+                        <div class="flex gap-2">
+                            <button type="button" class="locate-btn border-emerald-500 text-emerald-600" onclick="geocodeFromFields()">
+                                <i class="fas fa-search-location mr-1"></i> Find on Map
+                            </button>
+                            <button type="button" class="locate-btn" onclick="locateMe()">
+                                <i class="fas fa-crosshairs mr-1"></i> Use My GPS
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="address" th:field="*{address}" rows="3" oninput="handleManualInput()" placeholder="Enter street address..." required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>City</label>
+                    <input type="text" id="city" th:field="*{city}" oninput="handleManualInput()" placeholder="City" required>
+                </div>
+                <div class="input-group">
+                    <label>State</label>
+                    <input type="text" id="state" th:field="*{state}" oninput="handleManualInput()" placeholder="State" required>
+                </div>
+                <div class="input-group md:col-span-2">
+                    <label>Pincode</label>
+                    <input type="text" id="pincode" th:field="*{pincode}" oninput="handleManualInput()" placeholder="000000" required>
+                </div>
+            </div>
+
+            <!-- Interactive Google Map -->
+            <div id="map"></div>
+
+            <!-- Google Maps Coordinates & Altitude -->
+            <div class="mt-6 flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live GPS Info</span>
+                <input type="hidden" id="latitude" th:field="*{latitude}">
+                <input type="hidden" id="longitude" th:field="*{longitude}">
+                <input type="hidden" id="altitude" th:field="*{altitude}">
+                <div class="coordinate-badge">Lat: <span id="latDisplay">--.----</span></div>
+                <div class="coordinate-badge">Lng: <span id="lngDisplay">--.----</span></div>
+                <div class="coordinate-badge">Alt: <span id="altDisplay">--.--</span>m</div>
+                <div id="statusIndicator" class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Awaiting Location</div>
+            </div>
+        </section>
+
+        <button type="submit" class="fb-btn-submit"
+                th:text="${donor.id != null ? 'Save Changes' : 'Register as Donor'}">Register as Donor</button>
+
+        <p class="text-center text-sm text-slate-400" th:if="${donor.id == null}">
+            Already part of the network? <a href="#" class="text-emerald-600 font-bold hover:underline">Sign In here</a>
+        </p>
+    </form>
+</div>
+
+<!-- Notification Toast -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 translate-y-32 transition-transform">
+    <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white">
+        <i class="fas fa-check text-sm"></i>
+    </div>
+    <span id="toastMsg" class="font-bold text-sm">Success!</span>
+</div>
+
+<!-- Google Maps API Script -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE&callback=initMap" async defer></script>
+
+<script th:inline="javascript">
+    const apiKey = "AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE";
+    let map, marker, geocoder, elevationService;
+
+    function initMap() {
+        const latVal = /*[[${donor.latitude}]]*/ 20.5937;
+        const lngVal = /*[[${donor.longitude}]]*/ 78.9629;
+
+        const defaultLocation = { lat: latVal || 20.5937, lng: lngVal || 78.9629 };
+        geocoder = new google.maps.Geocoder();
+        elevationService = new google.maps.ElevationService();
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: latVal ? 15 : 5,
+            center: defaultLocation,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+            styles: [{ "featureType": "poi", "stylers": [{ "visibility": "off" }] }]
+        });
+
+        marker = new google.maps.Marker({
+            position: defaultLocation,
+            map: map,
+            draggable: true,
+            animation: google.maps.Animation.DROP,
+            title: "Pickup Location"
+        });
+
+        if(latVal && lngVal) {
+            updateCoordinates(latVal, lngVal, /*[[${donor.altitude}]]*/ 0);
+        }
+
+        google.maps.event.addListener(marker, 'dragend', function() {
+            const pos = marker.getPosition();
+            fetchDetailsFromCoords(pos.lat(), pos.lng());
+        });
+
+        map.addListener("click", (mapsMouseEvent) => {
+            const pos = mapsMouseEvent.latLng;
+            marker.setPosition(pos);
+            fetchDetailsFromCoords(pos.lat(), pos.lng());
+        });
+    }
+
+    function locateMe() {
+        if (!navigator.geolocation) {
+            showToast("Geolocation not supported", "error");
+            return;
+        }
+
+        document.getElementById('statusIndicator').innerText = "FETCHING GPS...";
+
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const { latitude, longitude, altitude } = pos.coords;
+            const position = { lat: latitude, lng: longitude };
+            map.setCenter(position);
+            map.setZoom(17);
+            marker.setPosition(position);
+
+            updateCoordinates(latitude, longitude, altitude);
+            fetchDetailsFromCoords(latitude, longitude, altitude);
+        }, (err) => {
+            showToast("GPS Permission Denied", "error");
+            document.getElementById('statusIndicator').innerText = "PERMISSION DENIED";
+        }, { enableHighAccuracy: true });
+    }
+
+    async function fetchDetailsFromCoords(lat, lng, providedAlt = null) {
+        updateCoordinates(lat, lng, providedAlt);
+
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+            if (status === "OK" && results[0]) {
+                const result = results[0];
+                const addressField = document.getElementById('address');
+                const cityField = document.getElementById('city');
+                const stateField = document.getElementById('state');
+                const pincodeField = document.getElementById('pincode');
+
+                if(addressField) addressField.value = result.formatted_address;
+
+                result.address_components.forEach(comp => {
+                    if (cityField && comp.types.includes('locality')) cityField.value = comp.long_name;
+                    if (stateField && comp.types.includes('administrative_area_level_1')) stateField.value = comp.long_name;
+                    if (pincodeField && comp.types.includes('postal_code')) pincodeField.value = comp.long_name;
+                });
+                showToast("Location captured!");
+            }
+        });
+
+        let finalAlt = providedAlt;
+        if (finalAlt === null || finalAlt === 0) {
+            elevationService.getElevationForLocations({ locations: [{ lat, lng }] }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    updateCoordinates(lat, lng, results[0].elevation);
+                }
+            });
+        }
+    }
+
+    async function geocodeFromFields() {
+        const addrEl = document.getElementById('address');
+        const cityEl = document.getElementById('city');
+        const pinEl = document.getElementById('pincode');
+
+        if(!addrEl || !cityEl || !pinEl) return;
+
+        const addr = addrEl.value.trim();
+        const city = cityEl.value.trim();
+        const pin = pinEl.value.trim();
+
+        const queryParts = [addr, city, pin].filter(x => x.length > 0);
+        if (queryParts.length === 0) return;
+
+        const fullAddress = queryParts.join(', ');
+        document.getElementById('statusIndicator').innerText = "SEARCHING MAP...";
+
+        geocoder.geocode({ address: fullAddress }, (results, status) => {
+            if (status === "OK" && results[0]) {
+                const result = results[0];
+                const { lat, lng } = result.geometry.location;
+                const latVal = lat();
+                const lngVal = lng();
+
+                const position = { lat: latVal, lng: lngVal };
+                map.setCenter(position);
+                map.setZoom(17);
+                marker.setPosition(position);
+
+                elevationService.getElevationForLocations({
+                    locations: [{ lat: latVal, lng: lngVal }]
+                }, (elevResults, elevStatus) => {
+                    const alt = (elevStatus === "OK" && elevResults[0]) ? elevResults[0].elevation : 0;
+                    updateCoordinates(latVal, lngVal, alt);
+                });
+
+                showToast("Coordinates verified!");
+            } else {
+                showToast("Location not found", "error");
+            }
+        });
+    }
+
+    let debounceTimer;
+    function handleManualInput() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => geocodeFromFields(), 1500);
+    }
+
+    function updateCoordinates(lat, lng, alt) {
+        const latEl = document.getElementById('latitude');
+        const lngEl = document.getElementById('longitude');
+        const altEl = document.getElementById('altitude');
+
+        if(latEl) latEl.value = lat;
+        if(lngEl) lngEl.value = lng;
+        if(altEl) altEl.value = alt || 0;
+
+        const latDisplay = document.getElementById('latDisplay');
+        const lngDisplay = document.getElementById('lngDisplay');
+        const altDisplay = document.getElementById('altDisplay');
+
+        if(latDisplay) latDisplay.innerText = (typeof lat === 'number' ? lat : parseFloat(lat)).toFixed(6);
+        if(lngDisplay) lngDisplay.innerText = (typeof lng === 'number' ? lng : parseFloat(lng)).toFixed(6);
+        if(altDisplay) altDisplay.innerText = alt ? parseFloat(alt).toFixed(2) : "0.00";
+
+        const statusIndicator = document.getElementById('statusIndicator');
+        if(statusIndicator) {
+            statusIndicator.innerText = "VERIFIED BY GOOGLE";
+            statusIndicator.style.color = "#10b981";
+        }
+    }
+
+    function updateFileLabel(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileInfo = document.getElementById('fileInfo');
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+            if(fileInfo) fileInfo.classList.remove('hidden');
+            if(fileNameDisplay) fileNameDisplay.innerText = file.name;
+        }
+    }
+
+    function showToast(msg, type = "success") {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        if(!toast || !toastMsg) return;
+
+        toastMsg.innerText = msg;
+        if (type === "error") toast.classList.replace('bg-slate-900', 'bg-red-600');
+        else toast.classList.replace('bg-red-600', 'bg-slate-900');
+
+        toast.classList.remove('translate-y-32');
+        setTimeout(() => toast.classList.add('translate-y-32'), 3500);
+    }
+</script>
+</body>
+</html>

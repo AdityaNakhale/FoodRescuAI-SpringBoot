@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login - Food Rescue AI</title>
+</head>
+
+<body>
+
+<h2>🔐 Admin Login</h2>
+
+<form th:action="@{/auth/adminlogin}" method="post">
+
+    <!-- Username -->
+    <label>Admin Username:</label><br>
+    <input type="text" name="username" required><br><br>
+
+    <!-- Password -->
+    <label>Password:</label><br>
+    <input type="password" name="password" required><br><br>
+
+    <!-- Remember Me -->
+    <input type="checkbox" name="remember"> Remember Me<br><br>
+
+    <!-- Submit -->
+    <input type="submit" value="Login">
+
+    <!-- Reset -->
+    <input type="reset" value="Clear">
+
+</form>
+
+<br>
+
+<!-- Optional Links -->
+<a href="forgotPassword.html">Forgot Password?</a><br>
+<a href="index.html">Back to Home</a>
+
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Food Rescue AI</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f4f7f8;
+        }
+
+        .navbar {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #34495e;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            padding: 10px;
+            border-bottom: 1px solid #555;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background: #1abc9c;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px 0;
+        }
+
+        input[type="submit"] {
+            background: green;
+            color: white;
+            cursor: pointer;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row div {
+            flex: 1;
+        }
+    </style>
+
+    <script>
+        function showSection(sectionId) {
+            document.getElementById("profileSection").style.display = "none";
+            document.getElementById("donateSection").style.display = "none";
+
+            document.getElementById(sectionId).style.display = "block";
+        }
+
+        function toggleOther(selectId, inputId) {
+            var select = document.getElementById(selectId);
+            var input = document.getElementById(inputId);
+
+            if (select.value === "Other") {
+                input.classList.remove("hidden");
+                input.required = true;
+            } else {
+                input.classList.add("hidden");
+                input.required = false;
+                input.value = ""; // clear value
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>🍽️ Food Rescue AI - Dashboard</h2>
+</div>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3>Menu</h3>
+        <a href="#" onclick="showSection('profileSection')">Profile</a>
+        <a href="#" onclick="showSection('donateSection')">Donate Food</a>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+        <!-- Profile Section -->
+
+        <div id="profileSection" class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1abc9c; margin-bottom: 15px;">
+                <h3 style="margin: 10px 0;">👤 Update Profile Details</h3>
+                <span style="background: #1abc9c; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8em;" th:text="${user.donorType}">Donor Type</span>
+            </div>
+
+            <form th:action="@{/updateProfile}" th:object="${user}" method="post">
+                <input type="hidden" th:field="*{id}">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                    <div>
+                        <label><b>Full Name:</b></label>
+                        <input type="text" th:field="*{fullName}" required>
+
+                        <label><b>Email:</b> (Read Only)</label>
+                        <input type="email" th:field="*{email}" readonly style="background: #eee;">
+
+                        <label><b>Mobile:</b></label>
+                        <input type="text" th:field="*{mobile}">
+
+                        <label><b>Organization:</b></label>
+                        <input type="text" th:field="*{organizationName}">
+
+                        <label><b>FSSAI Number:</b></label>
+                        <input type="text" th:field="*{fssai}">
+                    </div>
+
+                    <div>
+                        <label><b>Address:</b></label>
+                        <input type="text" th:field="*{address}">
+
+                        <label><b>City:</b></label>
+                        <input type="text" th:field="*{city}">
+
+                        <label><b>State:</b></label>
+                        <input type="text" th:field="*{state}">
+
+                        <label><b>Pincode:</b></label>
+                        <input type="text" th:field="*{pincode}">
+
+                        <label><b>Default Food Type:</b></label>
+                        <select th:field="*{foodType}">
+                            <option value="Veg">Veg</option>
+                            <option value="Non-Veg">Non-Veg</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; color: #666; font-size: 0.9em;">
+                    <div>
+                        <label><b>Typical Quantity:</b></label>
+                        <input type="text" th:field="*{quantity}">
+                    </div>
+                    <div>
+                        <label><b>Pref. Pickup Time:</b></label>
+                        <input type="time" th:field="*{pickupTime}">
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit" style="background: #1abc9c; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">
+                        💾 Save Changes
+                    </button>
+                </div>
+            </form>
+
+            <div th:if="${user.fileName}" style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                <a th:href="@{'/files/' + ${user.fileName}}" target="_blank" style="color: #2980b9; text-decoration: none; font-size: 0.85em;">
+                    View Current Registered Document 📄
+                </a>
+            </div>
+        </div>
+
+        <!-- Donate Food Section -->
+        <div id="donateSection" class="card hidden">
+            <h3>🍱 Donate Food</h3>
+
+            <form th:action="@{/donateFood}" th:object="${donation}" method="post"
+                  enctype="multipart/form-data">
+
+                <!-- Food Info -->
+                <fieldset>
+                    <legend>Food Information</legend>
+
+                    <label>Food Name:</label>
+                    <input type="text" th:field="*{foodName}" required>
+
+                    <label>Food Type:</label>
+                    <select th:field="*{foodType}" id="foodType"
+                            onchange="toggleOther('foodType','foodTypeOther')" required>
+                        <option value="">Select</option>
+                        <option value="Veg">Veg</option>
+                        <option value="Non-Veg">Non-Veg</option>
+                        <option value="Both">Both</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" name="foodTypeOther" id="foodTypeOther" class="hidden" placeholder="Enter food type">
+
+                    <label>Meal Type:</label>
+                    <select th:field="*{mealType}" id="mealType"
+                            onchange="toggleOther('mealType','mealTypeOther')">
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" name="mealTypeOther" id="mealTypeOther" class="hidden" placeholder="Enter meal type">
+
+                    <label>Category:</label>
+                    <select th:field="*{category}" id="category"
+                            onchange="toggleOther('category','categoryOther')">
+                        <option value="Rice">Rice</option>
+                        <option value="Roti">Roti</option>
+                        <option value="Curry">Curry</option>
+                        <option value="Sweets">Sweets</option>
+                        <option value="Bakery">Bakery</option>
+                        <option value="Packaged">Packaged</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" name="categoryOther" id="categoryOther" class="hidden" placeholder="Enter category">
+                </fieldset>
+
+                <!-- Instructions -->
+                <fieldset>
+                    <legend>Food Instructions</legend>
+                    <textarea th:field="*{instructions}" rows="3"></textarea>
+                </fieldset>
+
+                <!-- Quantity -->
+                <fieldset>
+                    <legend>Quantity & Timing</legend>
+
+                    <label>Quantity:</label>
+                    <input type="text" th:field="*{quantity}" required>
+
+                    <div class="row">
+                        <div>
+                            <label>Prepared Time:</label>
+                            <input type="time" th:field="*{preparedTime}" required>
+                        </div>
+                        <div>
+                            <label>Expiry Time:</label>
+                            <input type="time" th:field="*{expiryTime}" required>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Pickup -->
+                <fieldset>
+                    <legend>Pickup Details</legend>
+
+                    <label>Address:</label>
+                    <textarea th:field="*{address}" required></textarea>
+
+                    <label>City:</label>
+                    <input type="text" th:field="*{city}" required>
+
+                    <div class="row">
+                        <div>
+                            <label>Pickup Date:</label>
+                            <input type="date" th:field="*{pickupDate}" required>
+                        </div>
+                        <div>
+                            <label>Pickup Time:</label>
+                            <input type="time" th:field="*{pickupTime}" required>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Contact -->
+                <fieldset>
+                    <legend>Contact</legend>
+
+                    <label>Contact Person Name:</label>
+                    <input type="text" th:field="*{contactName}" required>
+
+                    <label>Mobile:</label>
+                    <input type="tel" th:field="*{mobile}" required>
+
+                    <label>Upload Image:</label>
+                    <input type="file" name="file" accept="image/*">
+                </fieldset>
+
+                <input type="submit" value="Donate Food">
+            </form>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

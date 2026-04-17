@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Food Rescue AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- DASHBOARD FONT -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        /* ROOT VARIABLES FROM DASHBOARD */
+        :root {
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-light: rgba(16, 185, 129, 0.1);
+            --dark: #0f172a;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --radius: 1.25rem;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            /* RADIAL GRADIENT FROM DASHBOARD */
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent),
+            radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.02), var(--slate-50));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--dark);
+        }
+
+        /* DASHBOARD CARD STYLE */
+        .login-wrap {
+            max-width: 480px;
+            width: 100%;
+            background: white;
+            padding: 3rem 2.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--slate-100);
+            animation: fadeIn 0.4s ease-out;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BRANDING LOGO */
+        .logo-box {
+            width: 64px;
+            height: 64px;
+            background: var(--primary);
+            color: white;
+            border-radius: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--slate-500);
+            font-weight: 500;
+            margin-bottom: 2.5rem;
+            font-size: 0.95rem;
+        }
+
+        form {
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--slate-600);
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        /* DASHBOARD INPUT STYLE */
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 1px solid var(--slate-200);
+            border-radius: 0.875rem;
+            font-size: 1rem;
+            background: var(--slate-50);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--dark);
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        /* PRIMARY DASHBOARD BUTTON */
+        .btn-login {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 1rem;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.3);
+        }
+
+        /* SECONDARY CLEAR BUTTON STYLE */
+        .btn-clear {
+            width: 100%;
+            background: white;
+            color: var(--slate-500);
+            padding: 0.875rem;
+            border: 1px solid var(--slate-200);
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.75rem;
+        }
+
+        .btn-clear:hover {
+            background: var(--slate-50);
+            color: var(--dark);
+        }
+
+        .auth-footer {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--slate-100);
+            font-size: 0.9rem;
+            color: var(--slate-500);
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 520px) {
+            .login-wrap {
+                padding: 2rem 1.5rem;
+                border-radius: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrap">
+    <div class="logo-box">
+        <i class="fas fa-hand-holding-heart"></i>
+    </div>
+
+    <h2>Welcome back</h2>
+    <p class="subtitle">Log in to Food Rescue AI to manage your contributions.</p>
+
+    <form th:action="@{/auth/login}" method="post">
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="name@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-login">
+            <span>Sign In</span>
+            <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <button type="reset" class="btn-clear">Clear Form</button>
+    </form>
+
+    <div class="auth-footer">
+        <p>Don't have an account yet?</p>
+        <a href="register.html">Create a free account</a>
+    </div>
+</div>
+
+</body>
+</html>

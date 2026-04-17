@@ -1,0 +1,64 @@
+<section th:fragment="editDonor" id="editDonorSection" class="dashboard-section space-y-8 animate-fade-in pb-12">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl">
+                    <i class="fas fa-hand-holding-heart text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-black text-slate-900">Lead Donor Details</h3>
+                    <p class="text-slate-500">Full control over donor profile and status.</p>
+                </div>
+            </div>
+            <button onclick="showSection('donorTable')" class="text-slate-400 hover:text-red-500 transition-all text-3xl">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+
+        <form th:action="@{/admin/api/donor/update}" id="editDonorForm" class="fb-card p-8 md:p-12 space-y-10" th:object="${donor}">
+            <input type="hidden" name="id" th:value="*{id}">
+
+            <section>
+                <div class="form-section-title"><i class="fas fa-user"></i> Personal & Org Identity</div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="input-group"><label>Full Name</label><input type="text" th:field="*{fullName}" name="fullName" required></div>
+                    <div class="input-group"><label>Organization Name</label><input type="text" th:field="*{organizationName}" name="organizationName" required></div>
+                    <div class="input-group"><label>Email Address</label><input type="email" th:field="*{email}" name="email" required></div>
+                    <div class="input-group"><label>Mobile Number</label><input type="tel" th:field="*{mobile}" name="mobile" required></div>
+                    <div class="input-group"><label>Donor Type</label>
+                        <select th:field="*{donorType}" name="donorType" required>
+                            <option value="individual">Individual Donor</option>
+                            <option value="restaurant">Restaurant / Cafe</option>
+                            <option value="hotel">Hotel / Banquet</option>
+                            <option value="supermarket">Supermarket</option>
+                            <option value="caterer">Catering Service</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>FSSAI License No.</label><input type="text" th:field="*{fssai}" name="fssai" required></div>
+                </div>
+            </section>
+
+            <section>
+                <div class="form-section-title"><i class="fas fa-map-marker-alt"></i> Location & GPS</div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="input-group md:col-span-2"><label>Pickup Address</label><textarea th:field="*{address}" name="address" rows="3" required></textarea></div>
+                    <div class="input-group"><label>City</label><input type="text" th:field="*{city}" name="city" required></div>
+                    <div class="input-group"><label>Pincode</label><input type="text" th:field="*{pincode}" name="pincode" required></div>
+                    <div class="input-group"><label>State</label><input type="text" th:field="*{state}" name="state" required></div>
+                </div>
+
+                <div id="map"></div>
+
+                <div class="mt-6 flex flex-wrap gap-4 items-center bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live GPS Info</span>
+                    <input type="hidden" th:field="*{latitude}" id="d_lat" name="latitude">
+                    <input type="hidden" th:field="*{longitude}" id="d_lng" name="longitude">
+                    <div class="coordinate-badge">Lat: <span id="latDisp" th:text="*{latitude}">--.----</span></div>
+                    <div class="coordinate-badge">Lng: <span id="lngDisp" th:text="*{longitude}">--.----</span></div>
+                </div>
+            </section>
+
+
+        </form>
+    </div>
+</section>

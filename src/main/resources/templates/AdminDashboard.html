@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console | Food Bridge AI</title>
+
+    <!-- CSRF Meta Tags for Spring Security -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; overflow-x: hidden; }
+        .sidebar-link-active { background-color: #4f46e5; color: white !important; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        #sidebar { transition: transform 0.3s ease-in-out, width 0.3s ease-in-out; }
+        #main-content { transition: margin-left 0.3s ease-in-out; }
+        .sidebar-collapsed #sidebar { transform: translateX(-100%); }
+        .sidebar-collapsed #main-content { margin-left: 0; }
+        .fb-card { background: white; border-radius: 2.5rem; border: 1px solid #e2e8f0; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05); }
+        .form-section-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; }
+        .input-group label { display: block; font-size: 0.875rem; font-weight: 700; color: #334155; margin-bottom: 0.5rem; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 0.875rem 1.25rem; border-radius: 1rem; border: 1px solid #e2e8f0; background: #f8fafc; transition: all 0.2s; font-weight: 500; font-size: 0.95rem; }
+        .input-group input:focus { outline: none; border-color: #10b981; background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        #map, #ngoMap { height: 350px; border-radius: 1.5rem; margin-top: 1.5rem; border: 4px solid white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .coordinate-badge { padding: 0.5rem 1rem; background: #f1f5f9; border-radius: 0.75rem; font-family: monospace; font-size: 0.75rem; font-weight: 700; color: #475569; }
+        .fb-btn-submit { width: 100%; padding: 1.25rem; border-radius: 1.25rem; background: #10b981; color: white; font-weight: 800; font-size: 1.125rem; transition: all 0.3s; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4); }
+        .fb-btn-submit:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.4); }
+    </style>
+</head>
+<body class="min-h-screen">
+
+<aside id="sidebar" class="w-72 bg-slate-900 text-slate-300 flex flex-col fixed inset-y-0 z-50">
+    <div class="p-8 flex items-center justify-between">
+        <div class="flex items-center gap-3 text-white">
+            <i class="fas fa-shield-halved text-indigo-500 text-2xl"></i>
+            <span class="text-xl font-black tracking-tight">Admin<span class="text-indigo-500">Bridge</span></span>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+    </div>
+    <nav class="flex-1 px-4 space-y-2 mt-4">
+        <button onclick="showSection('statsSection')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all font-semibold text-sm sidebar-link-active">
+            <i class="fas fa-chart-pie w-5"></i> Overview
+        </button>
+        <button onclick="showSection('donorTable')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all font-semibold text-sm">
+            <i class="fas fa-utensils w-5"></i> Manage Donors
+        </button>
+        <button onclick="showSection('ngoTable')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all font-semibold text-sm">
+            <i class="fas fa-handshake-angle w-5"></i> Manage NGOs
+        </button>
+        <button onclick="showSection('donationTable')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all font-semibold text-sm">
+            <i class="fas fa-truck-ramp-box w-5"></i> Food Rescues
+        </button>
+    </nav>
+    <div class="p-6">
+        <a th:href="@{/logout}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-400 transition-colors text-sm font-bold">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</aside>
+
+<div id="main-content" class="ml-72 flex flex-col min-h-screen">
+    <header class="flex justify-between items-center p-8 sticky top-0 bg-[#f1f5f9]/80 backdrop-blur-md z-40">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 shadow-sm"><i class="fas fa-bars"></i></button>
+            <h2 class="text-2xl font-black text-slate-800" id="sectionTitle">System Overview</h2>
+        </div>
+        <div class="relative hidden md:block">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="adminGlobalSearch" placeholder="Global Search..." class="pl-11 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 text-sm w-64">
+        </div>
+    </header>
+
+    <main class="flex-1 p-8 pt-0">
+        <section id="statsSection" class="dashboard-section space-y-8 animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Donors</p>
+                    <h3 class="text-3xl font-black text-slate-900" th:text="${#lists.size(donors)}">0</h3>
+                </div>
+                <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Verified NGOs</p>
+                    <h3 class="text-3xl font-black text-slate-900" th:text="${#lists.size(ngos)}">0</h3>
+                </div>
+                <div class="glass-card p-6 rounded-[2rem] shadow-sm bg-indigo-600 text-white border-none">
+                    <p class="text-[10px] font-black opacity-60 uppercase tracking-widest mb-2">Active Claims</p>
+                    <h3 class="text-3xl font-black" th:text="${#lists.size(donations)}">0</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Donor Table -->
+        <section id="donorTable" class="dashboard-section hidden space-y-6 animate-fade-in">
+            <div class="glass-card rounded-[2.5rem] overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50">
+                        <tr>
+                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Organization / Name</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type / FSSAI</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</th>
+                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="donorTableBody" class="divide-y divide-slate-50">
+                        <tr th:each="donor : ${donors}" class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-8 py-5">
+                                <p class="font-bold text-slate-900" th:text="${donor.organizationName}">Org</p>
+                                <p class="text-xs text-slate-500" th:text="${donor.fullName}">Name</p>
+                            </td>
+                            <td class="px-6 py-5 text-sm">
+                                <span class="text-slate-700 font-medium" th:text="${donor.donorType}">Type</span><br>
+                                <span class="text-[10px] text-indigo-500 font-bold" th:text="${donor.fssai}">FSSAI</span>
+                            </td>
+                            <td class="px-6 py-5 text-sm">
+                                <p th:text="${donor.email}">Email</p>
+                                <p class="text-xs text-slate-500" th:text="${donor.mobile}">Mobile</p>
+                            </td>
+                            <td class="px-6 py-5 text-xs text-slate-500" th:text="${donor.city + ', ' + donor.state}">Location</td>
+                            <td class="px-8 py-5">
+                                <div class="flex gap-2 items-center">
+                                    <button th:onclick="'loadEditForm(\'donor\', ' + ${donor.id} + ')'" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </button>
+                                    <a th:href="@{/admin/deleteDonor/{id}(id=${donor.id})}" onclick="return confirm('Delete?')" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- NGO Table -->
+        <section id="ngoTable" class="dashboard-section hidden space-y-6 animate-fade-in">
+            <div class="glass-card rounded-[2.5rem] overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50">
+                        <tr>
+                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">NGO Name / Contact</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reg ID / Type</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Capacity</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</th>
+                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="ngoTableBody" class="divide-y divide-slate-50">
+                        <tr th:each="ngo : ${ngos}" class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-8 py-5">
+                                <p class="font-bold text-slate-900" th:text="${ngo.ngoName}">NGO</p>
+                                <p class="text-xs text-slate-500" th:text="${ngo.contactPerson}">Contact</p>
+                            </td>
+                            <td class="px-6 py-5 text-sm">
+                                <span class="font-mono font-bold text-indigo-600" th:text="${ngo.registrationNumber}">ID</span><br>
+                                <span class="text-[10px] uppercase font-black text-slate-400" th:text="${ngo.ngoType}">Type</span>
+                            </td>
+                            <td class="px-6 py-5 text-sm"><span class="px-2 py-1 bg-slate-100 rounded text-slate-600 font-bold" th:text="${ngo.capacity + ' persons'}">0</span></td>
+                            <td class="px-6 py-5 text-xs text-slate-500" th:text="${ngo.city + ', ' + ngo.pincode}">Loc</td>
+                            <td class="px-8 py-5">
+                                <div class="flex gap-2 items-center">
+                                    <button th:onclick="'loadEditForm(\'ngo\', ' + ${ngo.id} + ')'" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </button>
+                                    <a th:href="@{/admin/deleteNgo/{id}(id=${ngo.id})}" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Food Rescue Table -->
+        <section id="donationTable" class="dashboard-section hidden space-y-6 animate-fade-in">
+            <div class="glass-card rounded-[2.5rem] overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50/50">
+                        <tr>
+                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Food Item</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Qty / Category</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Pickup Timing</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Logistics</th>
+                        </tr>
+                        </thead>
+                        <tbody id="donationTableBody" class="divide-y divide-slate-50">
+                        <tr th:each="food : ${donations}" class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-8 py-5">
+                                <p class="font-bold text-slate-900" th:text="${food.foodName}">Name</p>
+                            </td>
+                            <td class="px-6 py-5 text-sm">
+                                <span class="font-medium text-slate-700" th:text="${food.category}">Cat</span><br>
+                                <span class="text-xs font-black text-indigo-600" th:text="${food.quantity + ' Units'}">Qty</span>
+                            </td>
+                            <td class="px-6 py-5 text-xs text-slate-500">
+                                <p class="font-bold text-slate-700" th:text="${food.pickupDate}">Date</p>
+                                <p th:text="${food.pickupTime}">Time</p>
+                            </td>
+                            <td class="px-6 py-5">
+                                <span th:class="${food.statusrequest == 'Completed' ? 'px-2 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase rounded' : 'px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase rounded'}" th:text="${food.statusrequest}">Status</span>
+                            </td>
+                            <td class="px-8 py-5 text-[10px] font-mono text-slate-400">
+                                D_ID: <span th:text="${food.restaurantId}">0</span><br>
+                                N_ID: <span th:text="${food.assignedNgoId}">0</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <div id="dynamicContent"></div>
+    </main>
+</div>
+
+<!-- Notification Toast -->
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 translate-y-32 transition-transform z-[100]">
+    <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white"><i class="fas fa-check text-sm"></i></div>
+    <span id="toastMsg" class="font-bold text-sm">Success!</span>
+</div>
+
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE"></script>
+
+<script>
+    function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
+
+    function resetUI() {
+        document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('dynamicContent').innerHTML = '';
+    }
+
+    function showSection(id) {
+        resetUI();
+        const target = document.getElementById(id);
+        if(target) target.classList.remove('hidden');
+
+        const titles = {
+            'statsSection': 'System Overview',
+            'donorTable': 'Manage Donors',
+            'ngoTable': 'NGO Administration',
+            'donationTable': 'Food Rescue Logistics'
+        };
+        document.getElementById('sectionTitle').innerText = titles[id] || 'Dashboard';
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.toggle('sidebar-link-active', btn.getAttribute('onclick').includes(id));
+        });
+    }
+
+    async function loadEditForm(type, id) {
+        console.log(`Loading edit form for ${type} with ID: ${id}`);
+        resetUI();
+        const container = document.getElementById('dynamicContent');
+        const prefix = type === 'donor' ? 'd_' : 'n_';
+
+        try {
+            const htmlRes = await fetch(`/admin/load/edit-${type}/${id}`);
+            if (!htmlRes.ok) throw new Error(`HTTP error! status: ${htmlRes.status}`);
+
+            const html = await htmlRes.text();
+            container.innerHTML = html;
+
+            document.getElementById('sectionTitle').innerText = `Edit ${type.toUpperCase()} Profile`;
+
+            const formId = `edit${type.charAt(0).toUpperCase() + type.slice(1)}Form`;
+            const form = document.getElementById(formId);
+            if (form) {
+                form.onsubmit = (e) => {
+                    e.preventDefault();
+                    submitDynamicForm(`/admin/api/${type}/update`, form.id, `${type.toUpperCase()} Profile Updated!`);
+                };
+            }
+
+            // Map Initialization
+            setTimeout(() => {
+                try {
+                    const latIn = document.getElementById(prefix + 'lat');
+                    const lngIn = document.getElementById(prefix + 'lng');
+                    const lat = latIn ? parseFloat(latIn.value) : 20.5937;
+                    const lng = lngIn ? parseFloat(lngIn.value) : 78.9629;
+
+                    if (typeof google !== 'undefined' && google.maps) {
+                        initGoogleMap(
+                            type === 'donor' ? 'map' : 'ngoMap',
+                            prefix + 'lat',
+                            prefix + 'lng',
+                            type === 'donor' ? 'latDisp' : 'nLatDisp',
+                            type === 'donor' ? 'lngDisp' : 'nLngDisp',
+                            lat,
+                            lng
+                        );
+                    }
+                } catch (mapErr) {
+                    console.error("Map initialization failed", mapErr);
+                }
+            }, 200);
+
+        } catch (e) {
+            console.error("Fragment load failed", e);
+            showToast("Error loading profile", "error");
+        }
+    }
+
+    function initGoogleMap(mapId, latId, lngId, latDispId, lngDispId, lat, lng) {
+        const coords = { lat: parseFloat(lat) || 20.5937, lng: parseFloat(lng) || 78.9629 };
+        const mapEl = document.getElementById(mapId);
+        if (!mapEl) return;
+
+        const map = new google.maps.Map(mapEl, { zoom: 15, center: coords, mapTypeControl: false });
+        const marker = new google.maps.Marker({ position: coords, map: map, draggable: true });
+
+        google.maps.event.addListener(marker, 'dragend', () => {
+            const p = marker.getPosition();
+            const latIn = document.getElementById(latId);
+            const lngIn = document.getElementById(lngId);
+            const latD = document.getElementById(latDispId);
+            const lngD = document.getElementById(lngDispId);
+
+            if (latIn) latIn.value = p.lat();
+            if (lngIn) lngIn.value = p.lng();
+            if (latD) latD.innerText = p.lat().toFixed(6);
+            if (lngD) lngD.innerText = p.lng().toFixed(6);
+        });
+    }
+
+    function submitDynamicForm(url, formId, successMsg) {
+        const formData = {};
+        const inputs = document.querySelectorAll(`#${formId} input, #${formId} select, #${formId} textarea`);
+
+        inputs.forEach(i => {
+            if(i.name) {
+                const cleanName = i.name.includes('.') ? i.name.split('.').pop() : i.name;
+                formData[cleanName] = i.value;
+            }
+        });
+
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (csrfHeader && csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(formData)
+        }).then(res => {
+            if(res.ok) {
+                showToast(successMsg);
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast("Update failed. Check permissions.", "error");
+            }
+        }).catch(err => {
+            console.error("Fetch error:", err);
+            showToast("Network Error", "error");
+        });
+    }
+
+    function showToast(msg, type = "success") {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        if (!toast) return;
+
+        toastMsg.innerText = msg;
+        toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 transition-transform z-[100] ${type === 'error' ? 'bg-red-600' : 'bg-slate-900'} text-white`;
+
+        toast.classList.remove('translate-y-32');
+        setTimeout(() => toast.classList.add('translate-y-32'), 3000);
+    }
+</script>
+</body>
+</html>

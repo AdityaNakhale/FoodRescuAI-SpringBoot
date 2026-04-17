@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGO Dashboard | FoodBridge AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- INTERNAL CSS -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #10b981;
+            --primary-light: rgba(16, 185, 129, 0.1);
+            --dark: #0f172a;
+            --slate-50: #f8fafc;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-50);
+            color: var(--dark);
+        }
+
+        /* SIDEBAR NAVIGATION */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--slate-200);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            color: var(--slate-400);
+            font-weight: 600;
+            border-radius: 0.75rem;
+            margin: 0.25rem 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: var(--slate-50);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .fb-card {
+            background: white;
+            border-radius: 1.5rem;
+            border: 1px solid var(--slate-200);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card {
+            background: white;
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .listing-item {
+            border-bottom: 1px solid var(--slate-50);
+            padding: 1rem 0;
+            transition: all 0.2s;
+        }
+
+        .listing-item:last-child {
+            border-bottom: none;
+        }
+
+        .listing-item:hover {
+            background: var(--slate-50);
+            padding-left: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .hidden-section {
+            display: none;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--slate-50);
+        }
+
+        .detail-label {
+            width: 200px;
+            font-weight: 700;
+            color: var(--slate-400);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .detail-value {
+            flex: 1;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            height: 70px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="p-8">
+        <div class="flex items-center gap-2 mb-10">
+            <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-heart text-sm"></i>
+            </div>
+            <span class="text-xl font-extrabold tracking-tight">FoodBridge<span class="text-emerald-600">AI</span></span>
+        </div>
+
+        <nav class="space-y-1">
+            <div class="nav-link active" onclick="switchSection('overview', this)">
+                <i class="fas fa-th-large"></i> Overview
+            </div>
+            <div class="nav-link" onclick="switchSection('feed', this)">
+                <i class="fas fa-rss"></i> Available Food
+            </div>
+            <div class="nav-link" onclick="switchSection('claims', this)">
+                <i class="fas fa-hand-holding-heart"></i> My Claims
+            </div>
+            <div class="nav-link" onclick="switchSection('details', this)">
+                <i class="fas fa-id-card"></i> NGO Registered Details
+            </div>
+            <div class="nav-link" onclick="switchSection('settings', this)">
+                <i class="fas fa-cog"></i> Settings
+            </div>
+        </nav>
+    </div>
+
+    <div class="absolute bottom-0 w-full p-6 border-t border-slate-100">
+        <div class="flex items-center gap-3" th:if="${ngo != null}">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold"
+                 th:text="${#strings.substring(ngo.ngoName,0,1)}">
+                G
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-900" th:text="${ngo.ngoName}">Green Hope NGO</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Partner</p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="top-bar mb-8 rounded-2xl shadow-sm">
+        <div class="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+            <i class="fas fa-search text-slate-400"></i>
+            <input type="text" placeholder="Search for food surplus..." class="bg-transparent border-none outline-none text-sm w-64">
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="relative cursor-pointer">
+                <i class="fas fa-bell text-slate-400 text-lg"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+            </div>
+            <button class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                Rescue Food Now
+            </button>
+        </div>
+    </div>
+
+    <!-- SECTION: OVERVIEW -->
+    <div id="section-overview">
+        <div class="flex items-center justify-between mb-8" th:if="${ngo != null}">
+            <h1 class="text-3xl font-black text-slate-900">Welcome Back, <span th:text="${ngo.ngoName}">Green Hope</span></h1>
+            <div class="flex items-center gap-2 text-sm font-bold text-slate-500">
+                <i class="far fa-calendar"></i> April 12, 2026
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid md:grid-cols-4 gap-6 mb-10">
+            <div class="stat-card">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Rescues</p>
+                <h3 class="text-3xl font-black">1,420</h3>
+                <p class="text-xs text-emerald-600 font-bold mt-2"><i class="fas fa-arrow-up mr-1"></i> +12% this month</p>
+            </div>
+            <div class="stat-card" style="border-left-color: #3b82f6;">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">People Fed</p>
+                <h3 class="text-3xl font-black">4,850</h3>
+                <p class="text-xs text-blue-600 font-bold mt-2">Impact Score: 8.4</p>
+            </div>
+            <div class="stat-card" style="border-left-color: #f59e0b;">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pending Pickups</p>
+                <h3 class="text-3xl font-black">3</h3>
+                <p class="text-xs text-slate-400 font-bold mt-2">Next at 6:30 PM</p>
+            </div>
+            <div class="stat-card" style="border-left-color: #ef4444;">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">CO2 Saved</p>
+                <h3 class="text-3xl font-black">12.5t</h3>
+                <p class="text-xs text-red-600 font-bold mt-2">Emission offset</p>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Recent Listings Feed -->
+            <div class="lg:col-span-2 fb-card">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-extrabold">Real-time Surplus Feed</h3>
+                    <span class="ai-badge">AI Optimized</span>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="listing-item flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-bread-slice"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-900">30 Loaves Fresh Bread</p>
+                                <p class="text-xs text-slate-400">Le Gourmet Bakery • 0.8 km away</p>
+                            </div>
+                        </div>
+                        <button class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-600 transition">Claim</button>
+                    </div>
+                    <div class="listing-item flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-900">50 Cooked Meal Boxes</p>
+                                <p class="text-xs text-slate-400">City Palace Hotel • 2.1 km away</p>
+                            </div>
+                        </div>
+                        <button class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-600 transition">Claim</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Summary -->
+            <div class="fb-card bg-emerald-900 text-white border-none relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-xl font-extrabold mb-4">Rescue Insights</h3>
+                    <p class="text-emerald-100 text-sm mb-6 leading-relaxed">
+                        Based on your activity, we recommend increasing storage for <span class="font-bold">baked goods</span> this weekend as surplus is predicted to rise by 25%.
+                    </p>
+                    <div class="bg-white/10 p-4 rounded-xl border border-white/10 mb-4">
+                        <div class="flex justify-between text-xs font-bold mb-2">
+                            <span>Weekly Goal</span>
+                            <span>85%</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-white/10 rounded-full">
+                            <div class="h-full bg-emerald-400 w-[85%] rounded-full"></div>
+                        </div>
+                    </div>
+                    <button class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm hover:bg-emerald-400 transition">View Full Report</button>
+                </div>
+                <!-- Decor -->
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION: NGO REGISTERED DETAILS -->
+    <div id="section-details" class="hidden-section">
+        <div class="mb-8">
+            <h1 class="text-3xl font-black text-slate-900">Organization Profile</h1>
+            <p class="text-slate-400 font-medium">Manage and view your registered partnership details</p>
+        </div>
+
+        <div class="fb-card" th:if="${ngo != null}">
+            <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-50">
+                <div class="flex items-center gap-6">
+                    <div class="w-24 h-24 bg-emerald-600 rounded-[2rem] flex items-center justify-center text-white text-3xl shadow-xl">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900" th:text="${ngo.ngoName}">Organization Name</h2>
+                        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em] mt-1">
+                            Reg No: <span th:text="${ngo.registrationNumber}">Registration Number</span>
+                        </p>
+                        <span class="inline-block mt-3 px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black rounded-full uppercase" th:text="${ngo.ngoType}">NGO TYPE</span>
+                    </div>
+                </div>
+                <a th:href="@{/ngo/edit}" class="bg-slate-100 text-slate-600 px-6 py-2 rounded-xl font-bold text-sm hover:bg-slate-200 transition">
+                    <i class="fas fa-edit mr-2"></i> Edit Details
+                </a>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-x-12">
+                <div>
+                    <div class="form-section-title">Identity & Legal</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Full Legal Name</div>
+                        <div class="detail-value" th:text="${ngo.ngoName}">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Official Email</div>
+                        <div class="detail-value" th:text="${ngo.email}">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Registration ID</div>
+                        <div class="detail-value" th:text="${ngo.registrationNumber}">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Contact Person</div>
+                        <div class="detail-value" th:text="${ngo.contactPerson}">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Mobile Number</div>
+                        <div class="detail-value" th:text="${ngo.mobile}">Loading...</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-section-title">Location & Logistics</div>
+                    <div class="detail-row">
+                        <div class="detail-label">Office Address</div>
+                        <div class="detail-value text-sm leading-relaxed" th:text="${ngo.address}">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">City / Pin</div>
+                        <div class="detail-value">
+                            <span th:text="${ngo.city}">City</span>,
+                            <span th:text="${ngo.pincode}">Pin</span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Coordinates</div>
+                        <div class="detail-value flex flex-col gap-1">
+                            <!-- Dynamic Google Maps Redirect Link -->
+                            <a th:href="@{https://www.google.com/maps/search/(api=1, query=${ngo.address} + ' ' + ${ngo.latitude} + ',' + ${ngo.longitude})}"
+                               target="_blank"
+                               class="text-emerald-600 font-bold hover:underline flex items-center gap-2">
+                                <i class="fas fa-map-marked-alt"></i> View on Google Maps
+                            </a>
+                            <span class="text-[10px] text-slate-300 font-mono"
+                                  th:text="'Lat: ' + ${ngo.latitude} + ', Lng: ' + ${ngo.longitude}">0.00, 0.00</span>
+                        </div>
+                    </div>
+                    <div class="detail-row border-none">
+                        <div class="detail-label">Altitude</div>
+                        <div class="detail-value text-slate-600 flex items-center gap-2">
+                            <span th:text="${ngo.altitude}">0</span>m above sea level
+                            <span class="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-500 font-black rounded uppercase">GPS Verified</span>
+                        </div>
+                    </div>
+                    <div class="detail-row border-none">
+                        <div class="detail-label">Verification Doc</div>
+                        <div class="detail-value text-emerald-600 italic">
+                            <i class="fas fa-file-pdf mr-2"></i> Document on file
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fb-card text-center py-20" th:unless="${ngo != null}">
+            <i class="fas fa-exclamation-triangle text-3xl text-orange-400 mb-4"></i>
+            <p class="text-slate-400 font-bold">Organization details could not be loaded.</p>
+        </div>
+    </div>
+
+    <!-- OTHER SECTIONS -->
+    <div id="section-feed" class="hidden-section">
+        <h1 class="text-3xl font-black mb-4">Surplus Marketplace</h1>
+        <div class="fb-card text-center py-20">
+            <i class="fas fa-search text-5xl text-slate-100 mb-4"></i>
+            <p class="text-slate-400 font-bold">Scanning for new surplus nodes...</p>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    function switchSection(sectionId, element) {
+        // Hide all sections
+        document.getElementById('section-overview').classList.add('hidden-section');
+        document.getElementById('section-details').classList.add('hidden-section');
+        document.getElementById('section-feed').classList.add('hidden-section');
+
+        // Show target section
+        const target = document.getElementById('section-' + sectionId);
+        if(target) target.classList.remove('hidden-section');
+
+        // Update nav active state
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+</script>
+</body>
+</html>

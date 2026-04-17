@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGO Dashboard | Food Rescue AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- INTERNAL CSS -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-light: rgba(16, 185, 129, 0.1);
+            --dark: #0f172a;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-50);
+            color: var(--dark);
+            margin: 0;
+        }
+
+        /* SIDEBAR NAVIGATION */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--slate-200);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            color: var(--slate-400);
+            font-weight: 600;
+            border-radius: 0.75rem;
+            margin: 0.25rem 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: var(--slate-50);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-body {
+            flex: 1;
+            padding-bottom: 4rem;
+        }
+
+        .fb-card {
+            background: white;
+            border-radius: 1.5rem;
+            border: 1px solid var(--slate-200);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- MODERN FOOD CARD STYLING --- */
+        .food-card {
+            background: white;
+            border-radius: 1.75rem;
+            border: 1px solid var(--slate-200);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .food-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary-light);
+        }
+
+        .food-card.hidden-card {
+            display: none;
+        }
+
+        .food-image-container {
+            height: 200px;
+            width: 100%;
+            position: relative;
+            background: var(--slate-100);
+            overflow: hidden;
+        }
+
+        .food-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .food-card:hover .food-image-container img {
+            transform: scale(1.05);
+        }
+
+        .type-badge {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.875rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .type-veg { background: #10b981; color: white; }
+        .type-non-veg { background: #ef4444; color: white; }
+        .type-both { background: #f59e0b; color: white; }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hidden-section { display: none; }
+
+        .top-bar {
+            background: white;
+            height: 70px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        /* FILTER SECTION STYLING */
+        .filter-panel {
+            background: white;
+            border-radius: 1.25rem;
+            border: 1px solid var(--slate-200);
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-select {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: 0.75rem;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .btn-clear-filters {
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--slate-500);
+            background: var(--slate-100);
+            transition: all 0.2s;
+            height: 38px;
+            white-space: nowrap;
+        }
+
+        .btn-clear-filters:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        /* Improved Detail Tags */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .info-tile {
+            background: var(--slate-50);
+            padding: 0.75rem;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .info-tile:hover {
+            border-color: var(--slate-200);
+            background: white;
+        }
+
+        .info-tile label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--slate-400);
+            letter-spacing: 0.025em;
+        }
+
+        .info-tile span {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .expiry-warning {
+            background: #fff7ed !important;
+        }
+        .expiry-warning label { color: #f97316 !important; }
+        .expiry-warning span { color: #c2410c !important; }
+
+        .location-box {
+            background: var(--slate-50);
+            padding: 1rem;
+            border-radius: 1.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px dashed var(--slate-200);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="p-8">
+        <div class="flex items-center gap-2 mb-10">
+            <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-hand-holding-heart text-sm"></i>
+            </div>
+            <span class="text-xl font-extrabold tracking-tight text-slate-900">FoodRescue<span class="text-emerald-600">AI</span></span>
+        </div>
+
+        <nav class="space-y-1">
+            <div class="nav-link active" onclick="switchSection('overview', this)">
+                <i class="fas fa-th-large"></i> Overview
+            </div>
+            <div class="nav-link" onclick="switchSection('feed', this)">
+                <i class="fas fa-utensils"></i> Available Food
+            </div>
+            <div class="nav-link" onclick="switchSection('claims', this)">
+                <i class="fas fa-clipboard-check"></i> My Claims
+            </div>
+            <div class="nav-link" onclick="switchSection('details', this)">
+                <i class="fas fa-id-card"></i> Registered Details
+            </div>
+            <div class="nav-link" onclick="switchSection('settings', this)">
+                <i class="fas fa-cog"></i> Settings
+            </div>
+        </nav>
+    </div>
+
+    <div class="absolute bottom-0 w-full p-6 border-t border-slate-100">
+        <div class="flex items-center gap-3" th:if="${ngo != null}">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold"
+                 th:text="${#strings.substring(ngo.ngoName,0,1)}">G</div>
+            <div>
+                <p class="text-sm font-bold text-slate-900" th:text="${ngo.ngoName}">Organization</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Partner</p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="top-bar mb-8 rounded-2xl shadow-sm">
+        <div class="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+            <i class="fas fa-search text-slate-400"></i>
+            <input type="text" id="mainSearchInput" placeholder="Search by food or city..." oninput="filterFoodItems()" class="bg-transparent border-none outline-none text-sm w-64">
+        </div>
+        <div class="flex items-center gap-6">
+            <a th:href="@{/logout}" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="content-body">
+        <!-- SECTION: OVERVIEW -->
+        <div id="section-overview">
+            <div class="flex items-center justify-between mb-10">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-900">
+                        Welcome Back<span th:if="${ngo != null}">, <span th:text="${ngo.ngoName}">Partner</span></span>!
+                    </h1>
+                    <p class="text-slate-400 font-medium mt-1">Here is what's available for rescue today.</p>
+                </div>
+                <div class="flex items-center gap-2 text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200">
+                    <i class="far fa-calendar text-emerald-500"></i> <span id="display-date"></span>
+                </div>
+            </div>
+
+            <!-- OVERVIEW PREVIEW GRID -->
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">Recommended for Rescue</h2>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Top nodes in your geo-fence</p>
+                </div>
+                <button onclick="switchSection('feed', document.querySelector('.nav-link i.fa-utensils').parentElement)" class="text-xs font-black text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg hover:bg-emerald-600 hover:text-white transition">
+                    View Marketplace <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div th:each="food : ${allocatedFood}" th:if="${foodStat.index < 3}" class="food-card shadow-sm">
+                    <div class="food-image-container">
+                        <img th:if="${food.fileName != null}" th:src="@{/files/{fileName}(fileName=${food.fileName})}" alt="Food Image">
+                        <div th:unless="${food.fileName != null}" class="w-full h-full flex items-center justify-center text-slate-300">
+                            <i class="fas fa-utensils text-6xl"></i>
+                        </div>
+                        <span th:class="'type-badge ' + (${food.foodType == 'Veg' ? 'type-veg' : food.foodType == 'Non-Veg' ? 'type-non-veg' : 'type-both'})"
+                              th:text="${food.foodType}">Type</span>
+                    </div>
+
+                    <div class="p-6 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-5">
+                            <div>
+                                <h3 class="font-black text-xl text-slate-900 leading-tight" th:text="${food.foodName}">Biryani</h3>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1" th:text="${food.category} + ' • ' + ${food.mealType}">Dinner • Rice</p>
+                            </div>
+                            <div class="bg-emerald-50 text-emerald-600 px-3 py-2 rounded-xl text-center min-w-[60px]">
+                                <span class="block font-black text-lg leading-none" th:text="${food.quantity}">0</span>
+                                <span class="text-[8px] font-bold uppercase tracking-tighter">Units</span>
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-tile">
+                                <label><i class="far fa-clock mr-1"></i> Prepared</label>
+                                <span th:text="${food.preparedTime}">12:00 PM</span>
+                            </div>
+                            <div class="info-tile expiry-warning">
+                                <label><i class="fas fa-hourglass-half mr-1"></i> Expiry</label>
+                                <span th:text="${food.expiryTime} + 'h Left'">4h</span>
+                            </div>
+                        </div>
+
+                        <div class="location-box">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 shrink-0">
+                                    <i class="fas fa-map-marker-alt text-xs"></i>
+                                </div>
+                                <div class="text-sm">
+                                    <p class="font-bold text-slate-800" th:text="${food.city}">City Name</p>
+                                    <p class="text-slate-500 text-xs leading-relaxed line-clamp-1" th:text="${food.address}">Full pickup address here</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <a th:href="@{/dashboard/rescue/{id}(id=${food.id})}" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-black text-sm text-center hover:bg-emerald-700 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-hand-holding-heart"></i> Rescue This Food
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: AVAILABLE FOOD (WITH FILTERS) -->
+        <div id="section-feed" class="hidden-section">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-900">Available Food Surplus</h1>
+                    <p class="text-slate-400 font-medium">Browse and filter surplus ready for pick-up.</p>
+                </div>
+                <span class="ai-badge">AI Optimized Feed</span>
+            </div>
+
+            <!-- FILTER PANEL -->
+            <div class="filter-panel">
+                <div class="filter-group">
+                    <label>Food Type</label>
+                    <select id="filterType" onchange="filterFoodItems()" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="Veg">Veg Only</option>
+                        <option value="Non-Veg">Non-Veg Only</option>
+                        <option value="Both">Both</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select id="filterCategory" onchange="filterFoodItems()" class="filter-select">
+                        <option value="all">All Categories</option>
+                        <option value="Rice">Rice</option>
+                        <option value="Roti">Roti</option>
+                        <option value="Curry">Curry</option>
+                        <option value="Sweets">Sweets</option>
+                        <option value="Bakery">Bakery</option>
+                        <option value="Packaged">Packaged</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Meal Type</label>
+                    <select id="filterMeal" onchange="filterFoodItems()" class="filter-select">
+                        <option value="all">All Meals</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Snacks">Snacks</option>
+                    </select>
+                </div>
+                <button onclick="clearFilters()" class="btn-clear-filters">
+                    <i class="fas fa-undo-alt mr-2"></i> Clear
+                </button>
+            </div>
+
+            <div id="foodGrid" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+                <!-- Standardized Food Card for Feed -->
+                <!-- We add data attributes to facilitate client-side JS filtering -->
+                <div th:each="food : ${availableFoodList}"
+                     class="food-card shadow-sm hover:shadow-xl"
+                     th:attr="data-name=${#strings.toLowerCase(food.foodName)},
+                              data-city=${#strings.toLowerCase(food.city)},
+                              data-type=${food.foodType},
+                              data-category=${food.category},
+                              data-meal=${food.mealType}">
+
+                    <div class="food-image-container">
+                        <img th:if="${food.fileName != null}" th:src="@{/files/{fileName}(fileName=${food.fileName})}" alt="Surplus Food">
+                        <div th:unless="${food.fileName != null}" class="w-full h-full flex items-center justify-center text-slate-200">
+                            <i class="fas fa-camera text-6xl"></i>
+                        </div>
+                        <span th:class="'type-badge ' + (${food.foodType == 'Veg' ? 'type-veg' : food.foodType == 'Non-Veg' ? 'type-non-veg' : 'type-both'})"
+                              th:text="${food.foodType}">Veg</span>
+                    </div>
+
+                    <div class="p-6 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-5">
+                            <h3 class="font-black text-2xl text-slate-900 leading-tight" th:text="${food.foodName}">Biryani</h3>
+                            <div class="bg-emerald-50 text-emerald-600 px-3 py-2 rounded-xl text-center">
+                                <span class="block font-black text-xl leading-none" th:text="${food.quantity}">0</span>
+                                <span class="text-[9px] font-bold uppercase tracking-tighter">Items</span>
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-tile">
+                                <label>Category</label>
+                                <span th:text="${food.category}">Rice</span>
+                            </div>
+                            <div class="info-tile">
+                                <label>Meal Type</label>
+                                <span th:text="${food.mealType}">Dinner</span>
+                            </div>
+                            <div class="info-tile expiry-warning">
+                                <label>Expires In</label>
+                                <span th:text="${food.expiryTime} + ' Hours'">0h</span>
+                            </div>
+                            <div class="info-tile">
+                                <label>Time Prepared</label>
+                                <span th:text="${food.preparedTime}">00:00</span>
+                            </div>
+                        </div>
+
+                        <div class="location-box">
+                            <div class="space-y-3">
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-map-marked-alt text-slate-300 mt-1"></i>
+                                    <div class="text-sm">
+                                        <p class="font-bold text-slate-700" th:text="${food.city}">City</p>
+                                        <p class="text-slate-500 text-xs leading-snug" th:text="${food.address}">Full Address</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 pt-2 border-t border-slate-200/50">
+                                    <i class="far fa-calendar-alt text-slate-300"></i>
+                                    <p class="text-xs font-bold text-slate-600">
+                                        Pickup: <span th:text="${#dates.format(food.pickupDate, 'dd MMM')}">Date</span> • <span th:text="${food.pickupTime}">Time</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-6" th:if="${food.instructions != null and !food.instructions.isEmpty()}">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest flex items-center gap-2">
+                                <i class="fas fa-info-circle text-emerald-500"></i> Note
+                            </p>
+                            <p class="text-xs italic text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl border-l-4 border-emerald-500" th:text="${food.instructions}">Notes...</p>
+                        </div>
+
+                        <div class="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-900" th:text="${food.contactName}">Contact</p>
+                                    <p class="text-[10px] font-bold text-slate-400" th:text="${food.mobile}">Phone</p>
+                                </div>
+                            </div>
+                            <a th:href="@{/ngo/claim/{id}(id=${food.id})}" class="bg-emerald-600 text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                                Rescue
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty Results State -->
+            <div id="noResults" class="fb-card text-center py-20 hidden">
+                <i class="fas fa-filter text-4xl text-slate-200 mb-4"></i>
+                <p class="text-slate-500 font-bold">No food items match your selected filters.</p>
+                <button onclick="clearFilters()" class="text-emerald-600 font-bold mt-2 hover:underline">Clear all filters</button>
+            </div>
+        </div>
+
+        <!-- SECTION: REGISTERED DETAILS -->
+        <div id="section-details" class="hidden-section">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black text-slate-900">Organization Profile</h1>
+                <p class="text-slate-400 font-medium">Verified Registration & Contact Information</p>
+            </div>
+            <div class="fb-card" th:if="${ngo != null}">
+                <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
+                    <div class="flex items-center gap-6">
+                        <div class="w-24 h-24 bg-emerald-600 rounded-[2rem] flex items-center justify-center text-white text-3xl shadow-xl">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900" th:text="${ngo.ngoName}">Organization Name</h2>
+                            <span class="inline-block mt-3 px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black rounded-full uppercase" th:text="${ngo.ngoType}">Type</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="info-tile">
+                        <label>Official Email</label>
+                        <span th:text="${ngo.email}">Loading...</span>
+                    </div>
+                    <div class="info-tile">
+                        <label>Contact Person</label>
+                        <span th:text="${ngo.contactPerson}">Loading...</span>
+                    </div>
+                    <div class="info-tile">
+                        <label>Mobile Number</label>
+                        <span th:text="${ngo.mobile}">Loading...</span>
+                    </div>
+                    <div class="info-tile">
+                        <label>Office Address</label>
+                        <span th:text="${ngo.address}">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.getElementById('display-date').innerText = new Date().toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    /**
+     * Client-side Filtering Logic
+     */
+    function filterFoodItems() {
+        const searchTerm = document.getElementById('mainSearchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('filterType').value;
+        const catFilter = document.getElementById('filterCategory').value;
+        const mealFilter = document.getElementById('filterMeal').value;
+
+        const cards = document.querySelectorAll('#foodGrid .food-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            const city = card.getAttribute('data-city');
+            const type = card.getAttribute('data-type');
+            const category = card.getAttribute('data-category');
+            const meal = card.getAttribute('data-meal');
+
+            const matchesSearch = name.includes(searchTerm) || city.includes(searchTerm);
+            const matchesType = typeFilter === 'all' || type === typeFilter;
+            const matchesCat = catFilter === 'all' || category === catFilter;
+            const matchesMeal = mealFilter === 'all' || meal === mealFilter;
+
+            if (matchesSearch && matchesType && matchesCat && matchesMeal) {
+                card.classList.remove('hidden-card');
+                visibleCount++;
+            } else {
+                card.classList.add('hidden-card');
+            }
+        });
+
+        // Toggle no results message
+        const noResults = document.getElementById('noResults');
+        if (visibleCount === 0) {
+            noResults.classList.remove('hidden');
+        } else {
+            noResults.classList.add('hidden');
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('mainSearchInput').value = '';
+        document.getElementById('filterType').value = 'all';
+        document.getElementById('filterCategory').value = 'all';
+        document.getElementById('filterMeal').value = 'all';
+        filterFoodItems();
+    }
+
+    function switchSection(sectionId, element) {
+        document.getElementById('section-overview').classList.add('hidden-section');
+        document.getElementById('section-details').classList.add('hidden-section');
+        document.getElementById('section-feed').classList.add('hidden-section');
+
+        const target = document.getElementById('section-' + sectionId);
+        if(target) target.classList.remove('hidden-section');
+
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        element.classList.add('active');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>

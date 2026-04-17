@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Food Rescue AI - Home</title>
+    <style>
+        /* Basic reset */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f7f9fb;
+            color: #333;
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 28px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #1f6feb;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            color: #0f4c81;
+        }
+
+        p {
+            margin-bottom: 12px;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: #e6eef8;
+            margin: 18px 0;
+        }
+
+        ul {
+            margin-left: 18px;
+            margin-bottom: 12px;
+        }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        a.button-link {
+            text-decoration: none;
+        }
+
+        button {
+            background: #1f6feb;
+            color: #fff;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.18s ease, transform 0.08s ease;
+        }
+
+        button:hover {
+            background: #1559c1;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: #e6f0ff;
+            color: #0f4c81;
+            border: 1px solid #cfe3ff;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #667085;
+            text-align: center;
+        }
+
+        @media (max-width: 520px) {
+            .container { padding: 18px; }
+            .actions { flex-direction: column; align-items: stretch; }
+            button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Welcome to Food Rescue AI</h1>
+
+    <p>
+        Food Rescue AI is a platform that connects food donors with NGOs and volunteers
+        to reduce food waste and help people in need.
+    </p>
+
+    <hr>
+
+    <h2>Our Mission</h2>
+    <p>
+        To minimize food wastage and ensure surplus food reaches those who need it the most.
+    </p>
+
+    <hr>
+
+    <h2>Get Started</h2>
+
+    <div class="actions">
+        <a class="button-link" th:href="@{/foodregistration}" > <button>Register</button></a>
+        <a class="button-link" th:href="@{/auth/loginuser}" ><button class="secondary">Login</button></a>
+        <a class="button-link" th:href="@{/NGORegistration}" ><button class="secondary">NGORegistration</button></a>
+    </div>
+
+    <hr>
+
+    <h2>Features</h2>
+    <ul>
+        <li>Donate excess food easily</li>
+        <li>Connect with NGOs nearby</li>
+        <li>Volunteer for food delivery</li>
+        <li>Reduce food wastage using smart system</li>
+    </ul>
+
+    <hr>
+
+    <footer>© 2026 Food Rescue AI</footer>
+</div>
+
+</body>
+</html>
