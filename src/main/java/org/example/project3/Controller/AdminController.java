@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
@@ -27,7 +28,7 @@ public class AdminController {
     private FoodRepository foodRepo;
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session, Model model) {
+    public String dashboard(HttpSession session, Model model, @RequestParam(required = false) String section) {
         if (!"ADMIN".equals(session.getAttribute("userRole"))) {
             return "redirect:/login";
         }
@@ -38,21 +39,34 @@ public class AdminController {
         model.addAttribute("donations", donationRepo.findAll());
         model.addAttribute("donors", foodRepo.findAll());
 
+        model.addAttribute("activeSection", (section != null) ? section : "statsSection");
+
+
         return "AdminDashboard";
     }
 
-    @GetMapping("/load/edit-donor/{id}")
+    @GetMapping("/load/view-donor/{id}")
     public String loadEditDonorFragment(@PathVariable Long id, Model model) {
         model.addAttribute("donor", foodRepo.findById(id).orElse(null));
         return "fragments/edit-donor :: editDonor";
     }
 
-    @GetMapping("/load/edit-ngo/{id}")
+    @GetMapping("/load/view-ngo/{id}")
     public String loadEditNgoFragment(@PathVariable Long id, Model model) {
         model.addAttribute("ngo", ngoRepo.findById(id).orElse(null));
         return "fragments/edit-ngo :: editNgo";
     }
 
+    @GetMapping("/deleteNgo/{id}")
+    public String deleteNgo(@PathVariable Long id, HttpSession session, @RequestParam String section, RedirectAttributes redirectAttributes) {
+            ngoRepo.deleteById(id);
+        return "redirect:/admin/dashboard?section="+ section;
+    }
 
+    @GetMapping("/deleteDonor/{id}")
+    public String deleteDonor(@PathVariable Long id, HttpSession session, @RequestParam String section, RedirectAttributes redirectAttributes) {
+            foodRepo.deleteById(id);
+        return "redirect:/admin/dashboard?section="+ section;
+    }
 
-}
+    }

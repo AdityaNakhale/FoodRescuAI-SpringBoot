@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @Controller
+@RequestMapping("/donor")
 public class FoodController {
 
         private static String UPLOAD_DIR = "uploads2/";
@@ -33,10 +34,7 @@ public class FoodController {
         @Autowired
         FoodRepository foodRepository;
 
-    @GetMapping("/")
-    public String showFoodPage() {
-        return "Home";
-    }
+
 
     @GetMapping("/foodregistration")
     public String showFoodRegistrationForm(Model model) {
@@ -148,11 +146,7 @@ public class FoodController {
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).header("Content-Disposition", "inline; filename=\"" + fileName + "\"").body(resource);
     }
 
-    @GetMapping("/cancelDonation/{id}")
-    public String deleteDonation(@PathVariable Long id,@RequestParam String section) {
-        donationRepository.deleteById(id);
-        return "redirect:/dashboard/user?section=" + section;
-    }
+
     @GetMapping("/NGORegistration") // NO brace here
     public String showNGORegistration(Model model,HttpSession session) {
         model.addAttribute("ngo", new NGORegistration());
@@ -198,14 +192,54 @@ public class FoodController {
         return "success";
     }
 
+    /**
+     * Handles the Edit Button.
+     * It fetches the donation details and redirects to the dashboard
+     * with the 'section' parameter set to 'donateFoodSection'.
+     */
     @GetMapping("/editDonation/{id}")
-    public String editDonation(@PathVariable Long id, Model model, HttpSession session, @RequestParam String section, RedirectAttributes redirectAttributes) {
+    public String editDonation(@PathVariable Long id,
+                               @RequestParam String section,
+                               RedirectAttributes redirectAttributes) {
+
         Optional<FoodDonar> donationOpt = donationRepository.findById(id);
 
         if (donationOpt.isPresent()) {
+            // We use FlashAttributes so the donation object is available
+            // to the form after the redirect without being in the URL.
             redirectAttributes.addFlashAttribute("donation", donationOpt.get());
+            redirectAttributes.addFlashAttribute("successMessage", "Donation loaded for editing.");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Donation not found.");
+            // If not found, stay on the history page
+            return "redirect:/dashboard/user?section=donatedFoodSection";
         }
 
+        // Redirect back to the dashboard with the specific section open
+        return "redirect:/dashboard/user?section=" + section;
+    }
+
+    /**
+     * Handles the Delete (Cancel) Button.
+     * Deletes the record and redirects back to the 'donatedFoodSection' (History).
+     */
+    @GetMapping("/cancelDonation/{id}")
+    public String cancelDonation(@PathVariable Long id,
+                                 @RequestParam String section,
+                                 RedirectAttributes redirectAttributes) {
+
+        try {
+            if (donationRepository.existsById(id)) {
+                donationRepository.deleteById(id);
+                redirectAttributes.addFlashAttribute("successMessage", "Donation cancelled successfully.");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Unable to find the donation to delete.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error occurred while deleting: " + e.getMessage());
+        }
+
+        // Redirect back to the history section
         return "redirect:/dashboard/user?section=" + section;
     }
 

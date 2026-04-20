@@ -80,11 +80,11 @@ public class ServiceController {
 
     @GetMapping("/register/donor")
     public String registerDonor(HttpSession session, Model model) {
-        return null;
+        return "redirect:/donor/foodregistration";
     }
     @GetMapping("/register/ngo")
     public String registerNgo(HttpSession session, Model model) {
-        return null;
+        return "redirect:/donor/NGORegistration";
     }
 
 

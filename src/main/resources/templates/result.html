@@ -1,10 +1,239 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
-<h1>According to Food Rescue AI
-<h2 th:text="${result}"></h2>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Allocation Processing | FoodBridge AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-<a href="/">Back</a>
-</h1>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #10b981;
+            --dark: #0f172a;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-400: #94a3b8;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-900);
+            color: white;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* --- BACKGROUND DECOR --- */
+        .neural-bg {
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0);
+            background-size: 40px 40px;
+            z-index: -1;
+        }
+
+        .glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: -1;
+            animation: move 10s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-20%, -20%); }
+            to { transform: translate(20%, 20%); }
+        }
+
+        /* --- CONTENT CARD --- */
+        .result-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4rem 3rem;
+            border-radius: 3rem;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .ai-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            color: white;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 2.5rem;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        }
+
+        h1 {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+        }
+
+        /* --- TIMER --- */
+        .timer-container {
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .countdown-text {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .back-link {
+            margin-top: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(16, 185, 129, 0.2);
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="neural-bg"></div>
+<div class="glow"></div>
+
+<div class="result-card">
+    <div class="scanline"></div>
+
+    <div class="ai-icon">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <h1>According to Food Rescue AI</h1>
+    <!-- The Result Message from Controller -->
+    <h2 th:text="${result}">Allocation successful: Connecting with node...</h2>
+
+    <div class="timer-container">
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <p class="countdown-text">Returning to Intelligence Hub in <span id="timerCount">10</span>s</p>
+    </div>
+
+    <!-- Using th:href to ensure the URL is valid according to the server context -->
+    <a th:href="@{/donor/dashboard}" id="dashboardLink" class="back-link">
+        <i class="fas fa-arrow-left"></i> Override and Return Now
+    </a>
+</div>
+
+<script th:inline="javascript">
+    let timeLeft = 10;
+    const timerText = document.getElementById('timerCount');
+    const progressFill = document.getElementById('progressFill');
+    const dashboardLink = document.getElementById('dashboardLink');
+
+    // We fetch the href directly from the processed Thymeleaf anchor to avoid relative URL syntax errors
+    const redirectUrl = dashboardLink.href;
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        if (timerText) timerText.innerText = timeLeft;
+
+        // Update progress bar width
+        const percentage = (timeLeft / 10) * 100;
+        if (progressFill) progressFill.style.width = percentage + "%";
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            if (redirectUrl) {
+                window.location.replace(redirectUrl);
+            }
+        }
+    }, 1000);
+
+    // Fail-safe redirect
+    setTimeout(() => {
+        if (redirectUrl) {
+            window.location.replace(redirectUrl);
+        }
+    }, 11000);
+</script>
 </body>
 </html>

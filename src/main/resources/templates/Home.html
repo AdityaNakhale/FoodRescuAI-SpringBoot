@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodBridge AI | Rescuing Food with Intelligence</title>
+    <title>Food Rescue AI | Rescuing Food with Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
@@ -49,6 +49,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            cursor: pointer;
         }
 
         .fb-btn-primary:hover {
@@ -108,14 +109,6 @@
             100% { transform: scale(2.5); opacity: 0; }
         }
 
-        .stat-card {
-            background: var(--dark);
-            color: white;
-            padding: 2rem;
-            border-radius: var(--radius-md);
-            text-align: center;
-        }
-
         .icon-box {
             width: 60px;
             height: 60px;
@@ -128,6 +121,22 @@
             font-size: 1.5rem;
             margin-bottom: 1.5rem;
         }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
     </style>
 </head>
 <body class="hero-gradient overflow-x-hidden">
@@ -137,15 +146,15 @@
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
-                <i class="fas fa-heart"></i>
+                <i class="fas fa-robot"></i>
             </div>
-            <span class="text-2xl font-extrabold tracking-tight">FoodBridge<span class="text-emerald-600">AI</span></span>
+            <span class="text-2xl font-extrabold tracking-tight">FoodRescue<span class="text-emerald-600">AI</span></span>
         </div>
 
         <div class="hidden md:flex gap-10 items-center font-bold text-slate-600">
+            <a href="#about" class="hover:text-emerald-600 transition">About Us</a>
             <a href="#solutions" class="hover:text-emerald-600 transition">Solutions</a>
-            <a href="#how" class="hover:text-emerald-600 transition">How it Works</a>
-            <a href="#impact" class="hover:text-emerald-600 transition">Impact</a>
+            <a href="#feedback" class="hover:text-emerald-600 transition">Contact</a>
         </div>
 
         <div class="flex items-center gap-4">
@@ -161,20 +170,20 @@
         <div class="relative z-10">
             <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-xs font-black uppercase tracking-widest mb-8 border border-emerald-100">
                 <div class="ai-pulse"></div>
-                Real-time AI Matching Live
+                Real-time Food Matching Engine
             </div>
             <h1 class="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] mb-8">
-                Stop Food Waste. <br/>
-                <span class="text-emerald-600 underline decoration-emerald-200 underline-offset-8">Feed the World.</span>
+                Eliminate Hunger with <br/>
+                <span class="text-emerald-600 underline decoration-emerald-200 underline-offset-8">AI-Powered Logistics.</span>
             </h1>
             <p class="text-xl text-slate-500 mb-10 leading-relaxed max-w-xl">
-                Our proprietary AI engine bridges the gap between surplus inventory and community hunger by connecting donors with local NGOs instantly.
+                Food Rescue AI uses neural networks to predict surplus patterns and automate the redistribution of fresh food to those who need it most.
             </p>
             <div class="flex flex-col sm:flex-row gap-5">
-               <a th:href="@{/foodregistration}"><button class="fb-btn-primary text-lg">
+                <a th:href="@{/donor/foodregistration}"><button class="fb-btn-primary text-lg">
                     Start Donating <i class="fas fa-arrow-right"></i>
                 </button></a>
-                <a th:href="@{/NGORegistration}"><button  class="px-8 py-4 bg-white border-2 border-slate-200 rounded-[1.25rem] font-black text-slate-700 hover:border-emerald-600 hover:text-emerald-600 transition shadow-sm">
+                <a th:href="@{/donor/NGORegistration}"><button class="px-8 py-4 bg-white border-2 border-slate-200 rounded-[1.25rem] font-black text-slate-700 hover:border-emerald-600 hover:text-emerald-600 transition shadow-sm">
                     Partner as NGO
                 </button></a>
             </div>
@@ -186,11 +195,11 @@
                     <div class="flex items-center justify-between mb-8">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
-                                <i class="fas fa-robot text-xl"></i>
+                                <i class="fas fa-brain text-xl"></i>
                             </div>
                             <div class="text-white">
-                                <p class="text-sm font-black">BridgeAI Active</p>
-                                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Scanning Network...</p>
+                                <p class="text-sm font-black">Food-Neural-Link v2.1</p>
+                                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Optimizing Logistics...</p>
                             </div>
                         </div>
                         <div class="px-3 py-1 bg-white/10 rounded-full text-[10px] text-white font-bold tracking-widest uppercase">Nodes: 1,420</div>
@@ -213,11 +222,11 @@
                             <div class="absolute left-0 top-0 h-full w-1 bg-emerald-500"></div>
                             <div class="flex gap-4">
                                 <div class="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
-                                    <i class="fas fa-truck"></i>
+                                    <i class="fas fa-truck-loading"></i>
                                 </div>
                                 <div class="text-white">
                                     <p class="text-xs font-bold">Green Hope NGO</p>
-                                    <p class="text-[10px] opacity-60">Matched & Dispatched</p>
+                                    <p class="text-[10px] opacity-60">AI Match: Optimized</p>
                                 </div>
                             </div>
                             <div class="text-white text-[10px] font-black bg-emerald-600 px-2 py-1 rounded">0.4s</div>
@@ -225,7 +234,7 @@
                     </div>
                 </div>
                 <div class="bg-white p-6 border-t border-slate-100 flex justify-between items-center">
-                    <div class="text-slate-400 text-xs font-bold uppercase tracking-widest">System Efficiency</div>
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-widest">Rescue Efficiency</div>
                     <div class="flex gap-1">
                         <div class="w-1 h-6 bg-emerald-200 rounded-full"></div>
                         <div class="w-1 h-8 bg-emerald-300 rounded-full"></div>
@@ -241,105 +250,144 @@
     </div>
 </header>
 
-<!-- Impact Stats -->
-<section id="impact" class="py-20 bg-slate-900 mx-6 rounded-[3rem] shadow-2xl overflow-hidden relative">
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 left-0 w-full h-full" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
-    </div>
-    <div class="max-w-7xl mx-auto px-10 relative z-10">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-            <div>
-                <h3 class="text-4xl lg:text-6xl font-black text-white mb-2">2.5M+</h3>
-                <p class="text-emerald-400 text-xs font-black uppercase tracking-[0.2em]">Meals Rescued</p>
-            </div>
-            <div>
-                <h3 class="text-4xl lg:text-6xl font-black text-white mb-2">1,200</h3>
-                <p class="text-emerald-400 text-xs font-black uppercase tracking-[0.2em]">Active Donors</p>
-            </div>
-            <div>
-                <h3 class="text-4xl lg:text-6xl font-black text-white mb-2">99%</h3>
-                <p class="text-emerald-400 text-xs font-black uppercase tracking-[0.2em]">Match Accuracy</p>
-            </div>
-            <div>
-                <h3 class="text-4xl lg:text-6xl font-black text-white mb-2">80t</h3>
-                <p class="text-emerald-400 text-xs font-black uppercase tracking-[0.2em]">Carbon Offset</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Features -->
-<section id="solutions" class="py-32 px-6">
+<!-- About Section -->
+<section id="about" class="py-24 bg-white px-6">
     <div class="max-w-7xl mx-auto">
-        <div class="text-center max-w-3xl mx-auto mb-20">
-            <h2 class="text-4xl lg:text-5xl font-black text-slate-900 mb-6 leading-tight">Solving Food Logistics with <span class="text-emerald-600">Pure Intelligence</span></h2>
-            <p class="text-lg text-slate-500 font-medium">Traditional food rescue is manual and slow. We use machine learning to optimize every step of the chain.</p>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="fb-card">
-                <div class="icon-box"><i class="fas fa-bolt"></i></div>
-                <h4 class="text-xl font-black mb-4">Instant Matching</h4>
-                <p class="text-slate-500 leading-relaxed text-sm">Our AI instantly identifies the closest NGO capable of handling your specific inventory type and volume.</p>
+        <div class="grid lg:grid-cols-2 gap-20 items-center">
+            <div>
+                <h2 class="text-4xl lg:text-5xl font-black text-slate-900 mb-8 leading-tight">About Food Rescue AI</h2>
+                <div class="space-y-6 text-slate-600 text-lg leading-relaxed">
+                    <p>At Food Rescue AI, we believe that hunger is a logistics problem, not a resource problem. Every year, trillions of dollars worth of food go to waste while millions go hungry. Our mission is to bridge this gap through <strong>advanced artificial intelligence</strong>.</p>
+                    <p>Developed by <strong>JK Innovative Private Limited</strong>, our platform uses machine learning to analyze surplus data, optimize delivery routes, and ensure that food reaches its destination before it expires. We empower restaurants, grocery stores, and event centers to turn their waste into impact.</p>
+                </div>
+                <div class="mt-10 flex gap-8">
+                    <div>
+                        <p class="text-3xl font-black text-emerald-600">Mission</p>
+                        <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">Zero Hunger Future</p>
+                    </div>
+                    <div class="w-px h-12 bg-slate-200"></div>
+                    <div>
+                        <p class="text-3xl font-black text-emerald-600">Vision</p>
+                        <p class="text-slate-500 text-sm font-bold uppercase tracking-wider">AI for Global Good</p>
+                    </div>
+                </div>
             </div>
-            <div class="fb-card">
-                <div class="icon-box" style="background: rgba(249, 115, 22, 0.1); color: var(--secondary);"><i class="fas fa-route"></i></div>
-                <h4 class="text-xl font-black mb-4">Dynamic Routing</h4>
-                <p class="text-slate-500 leading-relaxed text-sm">Real-time traffic and perishability analysis to ensure food is delivered at peak freshness.</p>
-            </div>
-            <div class="fb-card">
-                <div class="icon-box" style="background: rgba(15, 23, 42, 0.1); color: var(--dark);"><i class="fas fa-shield-alt"></i></div>
-                <h4 class="text-xl font-black mb-4">Verification Layer</h4>
-                <p class="text-slate-500 leading-relaxed text-sm">Automated safety checks and digital handshakes ensure every transaction is secure and compliant.</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="fb-card bg-emerald-50 flex flex-col items-center justify-center p-8 border-none">
+                    <i class="fas fa-microchip text-4xl text-emerald-600 mb-4"></i>
+                    <p class="font-black text-center text-emerald-900">Advanced ML</p>
+                </div>
+                <div class="fb-card bg-slate-900 text-white flex flex-col items-center justify-center p-8 border-none transform translate-y-8">
+                    <i class="fas fa-globe-americas text-4xl text-emerald-400 mb-4"></i>
+                    <p class="font-black text-center">Global Impact</p>
+                </div>
+                <div class="fb-card bg-orange-50 flex flex-col items-center justify-center p-8 border-none">
+                    <i class="fas fa-hand-holding-heart text-4xl text-orange-600 mb-4"></i>
+                    <p class="font-black text-center text-orange-900">Community Driven</p>
+                </div>
+                <div class="fb-card bg-white flex flex-col items-center justify-center p-8 transform translate-y-8">
+                    <i class="fas fa-chart-line text-4xl text-emerald-600 mb-4"></i>
+                    <p class="font-black text-center text-slate-900">Scalable Solutions</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Call to Action -->
-<section class="pb-32 px-6">
-    <div class="max-w-5xl mx-auto bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-[3.5rem] p-12 lg:p-24 text-center text-white relative overflow-hidden shadow-2xl shadow-emerald-200">
-        <div class="relative z-10">
-            <h2 class="text-4xl lg:text-6xl font-black mb-8 leading-tight">Ready to bridge the gap?</h2>
-            <p class="text-emerald-100 text-lg mb-12 max-w-xl mx-auto opacity-90 font-medium">Join the thousands of businesses already turning surplus into community impact. Zero cost for NGOs, tax benefits for donors.</p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <button class="bg-white text-emerald-700 px-10 py-5 rounded-2xl font-black text-xl hover:bg-emerald-50 transition shadow-xl">Join the Mission</button>
-                <button class="bg-emerald-900/30 text-white border border-emerald-400/30 px-10 py-5 rounded-2xl font-black text-xl hover:bg-emerald-900/50 transition">Watch Demo</button>
+<!-- Feedback Form -->
+<section id="feedback" class="py-24 px-6 bg-slate-50">
+    <div class="max-w-4xl mx-auto">
+        <div class="fb-card p-10 lg:p-16">
+            <div class="text-center mb-12">
+                <div class="inline-block p-4 bg-emerald-100 rounded-2xl text-emerald-700 mb-4">
+                    <i class="fas fa-comment-alt text-2xl"></i>
+                </div>
+                <h2 class="text-3xl lg:text-4xl font-black text-slate-900 mb-2">Message, Complaint or Suggestion</h2>
+                <p class="text-slate-500">Your feedback helps us optimize the food rescue network.</p>
             </div>
+
+            <form action="#" method="POST" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Your Name</label>
+                        <input type="text" class="form-input" placeholder="John Doe" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Email Address</label>
+                        <input type="email" class="form-input" placeholder="john@example.com" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Type of Inquiry</label>
+                    <select class="form-input appearance-none">
+                        <option>General Message</option>
+                        <option>Complaint</option>
+                        <option>Suggestion</option>
+                        <option>Report Food Waste</option>
+                        <option>Partnership Inquiry</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Your Message</label>
+                    <textarea class="form-input min-h-[150px]" placeholder="How can we help you today?" required></textarea>
+                </div>
+
+                <button type="submit" class="fb-btn-primary w-full justify-center text-lg">
+                    Send Feedback <i class="fas fa-paper-plane ml-2"></i>
+                </button>
+            </form>
         </div>
-        <!-- Background Orbs -->
-        <div class="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
     </div>
 </section>
 
 <!-- Footer -->
-<footer class="bg-white border-t border-slate-100 py-20 px-6">
+<footer class="bg-white border-t border-slate-100 pt-20 pb-10 px-6">
     <div class="max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-10">
-            <div>
+        <div class="grid lg:grid-cols-4 gap-12 mb-16">
+            <div class="col-span-1 lg:col-span-2">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
-                        <i class="fas fa-heart text-sm"></i>
+                        <i class="fas fa-robot text-sm"></i>
                     </div>
-                    <span class="text-xl font-extrabold tracking-tight">FoodBridge AI</span>
+                    <span class="text-xl font-extrabold tracking-tight text-slate-900">Food Rescue AI</span>
                 </div>
-                <p class="text-slate-400 text-sm max-w-xs">Building the intelligent infrastructure for a waste-free future.</p>
+                <p class="text-slate-500 text-base max-w-sm mb-6">
+                    A subsidiary of <span class="font-bold text-slate-900">JK Innovative Private Limited</span>. Building the intelligent infrastructure for a waste-free future through proprietary AI and logistics optimization.
+                </p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition"><i class="fab fa-linkedin-in"></i></a>
+                </div>
             </div>
-            <div class="flex gap-12 font-bold text-sm text-slate-500">
-                <a href="#" class="hover:text-emerald-600">Privacy</a>
-                <a href="#" class="hover:text-emerald-600">Terms</a>
-                <a href="#" class="hover:text-emerald-600">Safety</a>
-                <a href="#" class="hover:text-emerald-600">API</a>
+
+            <div>
+                <h4 class="font-black text-slate-900 uppercase tracking-widest text-xs mb-6">About the Company</h4>
+                <ul class="space-y-4 text-slate-500 text-sm font-bold">
+                    <li>JK Innovative Private Limited</li>
+                    <li>Headquarters: Tech-Hub City, Area 51</li>
+                    <li>Contact: +1 (555) 123-4567</li>
+                    <li>Email: contact@jkinnovative.com</li>
+                </ul>
             </div>
-            <div class="flex gap-4">
-                <a href="#" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition"><i class="fab fa-linkedin-in"></i></a>
+
+            <div>
+                <h4 class="font-black text-slate-900 uppercase tracking-widest text-xs mb-6">Platform</h4>
+                <ul class="space-y-4 text-slate-500 text-sm font-bold">
+                    <li><a href="#about" class="hover:text-emerald-600 transition">Our Mission</a></li>
+                    <li><a href="#solutions" class="hover:text-emerald-600 transition">AI Technology</a></li>
+                    <li><a href="#feedback" class="hover:text-emerald-600 transition">Contact Support</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition">Privacy Policy</a></li>
+                </ul>
             </div>
         </div>
-        <div class="mt-16 text-center text-[10px] text-slate-300 font-black uppercase tracking-[0.3em]">
-            © 2026 FoodBridge AI Technologies Inc. All Rights Reserved.
+
+        <div class="pt-8 border-t border-slate-50 text-center">
+            <p class="text-[10px] text-slate-300 font-black uppercase tracking-[0.3em]">
+                © 2026 JK Innovative Private Limited. All Rights Reserved. Food Rescue AI is a registered trademark.
+            </p>
         </div>
     </div>
 </footer>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${ngo.id != null ? 'Update NGO Profile | FoodBridge AI' : 'NGO Partnership Registration | FoodBridge AI'}">NGO Registration | FoodBridge AI</title>
+    <title>NGO Partnership Registration | Food Rescue AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
@@ -16,9 +16,11 @@
             --primary-hover: #059669;
             --dark: #0f172a;
             --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
             --slate-500: #64748b;
             --glass: rgba(255, 255, 255, 0.9);
-            --radius: 1rem;
+            --header-height: 72px;
         }
 
         body {
@@ -27,6 +29,43 @@
             radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.05), #f8fafc);
             color: var(--dark);
             min-height: 100vh;
+            padding-top: calc(var(--header-height) + 2rem);
+        }
+
+        /* --- FIXED HEADER --- */
+        header.fixed-top {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--header-height);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--slate-200);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--slate-500);
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            transform: translateX(-3px);
         }
 
         .fb-card {
@@ -110,11 +149,6 @@
             transition: all 0.2s;
         }
 
-        .locate-btn:hover {
-            background: var(--primary);
-            color: white;
-        }
-
         .coordinate-badge {
             background: #f1f5f9;
             padding: 0.5rem 0.75rem;
@@ -147,30 +181,44 @@
             border-color: var(--primary);
             background: rgba(16, 185, 129, 0.02);
         }
+
+        footer {
+            margin-top: 5rem;
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid var(--slate-200);
+            background: white;
+        }
     </style>
 </head>
-<body class="py-12 px-4">
+<body>
 
-<div class="max-w-4xl mx-auto">
-    <!-- Brand Header -->
-    <div class="text-center mb-12">
-        <div class="inline-flex items-center gap-2 mb-4">
-            <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl">
-                <i class="fas fa-heart text-xl"></i>
-            </div>
-            <span class="text-3xl font-black tracking-tight">FoodBridge<span class="text-emerald-600">AI</span></span>
+<!-- FIXED HEADER -->
+<header class="fixed-top">
+    <a href="javascript:history.back()" class="back-link">
+        <i class="fas fa-chevron-left"></i>
+        <span>Go Back</span>
+    </a>
+
+    <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white shadow-md">
+            <i class="fas fa-heart text-sm"></i>
         </div>
-        <h1 class="text-4xl font-black text-slate-900 mb-2"
-            th:text="${ngo.id != null ? 'Update NGO Profile' : 'NGO Partner Program'}">NGO Partner Program</h1>
-        <p class="text-slate-500"
-           th:text="${ngo.id != null ? 'Keep your organization details up to date for better coordination.' : 'Register your organization to start rescuing surplus food in your area.'}">Register your organization to start rescuing surplus food in your area.</p>
+        <span class="text-xl font-black tracking-tight">FoodRescue<span class="text-emerald-600">AI</span></span>
+    </div>
+
+    <div class="hidden md:block w-[100px]"></div> <!-- Spacer for balance -->
+</header>
+
+<div class="max-w-4xl mx-auto px-4">
+    <!-- Section Title Info -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-black text-slate-900 mb-2">NGO Partner Program</h1>
+        <p class="text-slate-500">Register your organization to start rescuing surplus food in your area.</p>
     </div>
 
     <!-- Thymeleaf Form Binding -->
-    <form id="ngoRegistrationForm" th:action="${ngo.id != null ? '/update/ngo' : '/register/ngo'}" th:object="${ngo}" method="post" class="fb-card p-8 md:p-12 space-y-10" enctype="multipart/form-data">
-
-        <!-- HIDDEN ID FIELD -->
-        <input type="hidden" th:field="*{id}">
+    <form id="ngoRegistrationForm" th:action="@{/donor/register/ngo}" th:object="${ngo}" method="post" class="fb-card p-8 md:p-12 space-y-10" enctype="multipart/form-data">
 
         <!-- 1. ORGANIZATION IDENTITY -->
         <section>
@@ -211,8 +259,8 @@
                     <input type="email" id="email" th:field="*{email}" placeholder="admin@ngo.org" required>
                 </div>
                 <div class="input-group">
-                    <label th:text="${ngo.id != null ? 'New Password (Leave blank to keep current)' : 'Password'}">Password</label>
-                    <input type="password" id="password" th:field="*{password}" placeholder="••••••••" th:required="${ngo.id == null}">
+                    <label>Password</label>
+                    <input type="password" id="password" th:field="*{password}" placeholder="••••••••" required>
                 </div>
             </div>
         </section>
@@ -285,7 +333,7 @@
             </div>
             <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
                 <i class="fas fa-cloud-upload-alt text-3xl text-slate-300 mb-2"></i>
-                <p class="font-bold text-slate-600" th:text="${ngo.id != null ? 'Update Registration Certificate (Optional)' : 'Upload Registration Certificate'}">Upload Registration Certificate</p>
+                <p class="font-bold text-slate-600">Upload Registration Certificate</p>
                 <p class="text-xs text-slate-400">PDF, JPG or PNG (Max 5MB)</p>
                 <input type="file" id="fileInput" name="verificationFile" class="hidden" onchange="updateFileLabel(this)">
                 <div id="fileInfo" class="mt-3 text-sm font-bold text-emerald-600 hidden">
@@ -294,14 +342,28 @@
             </div>
         </section>
 
-        <button type="submit" class="fb-btn-submit"
-                th:text="${ngo.id != null ? 'Update Organization Details' : 'Register Organization'}">Register Organization</button>
-
-        <p class="text-center text-sm text-slate-400" th:if="${ngo.id == null}">
-            Already registered? <a href="#" class="text-emerald-600 font-bold hover:underline">Sign In here</a>
+        <button type="submit" class="fb-btn-submit">Register Organization</button>
+        <a th:href="@{/}" class="fb-btn-cancel">
+            <i class="fas fa-times-circle"></i> Cancel
+        </a>
+        <p class="text-center text-sm text-slate-400">
+            Already registered? <a th:href="@{/login}" class="text-emerald-600 font-bold hover:underline">Sign In here</a>
         </p>
     </form>
 </div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="max-w-7xl mx-auto px-6">
+        <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">Food Rescue AI Technologies</p>
+        <p class="text-slate-300 text-xs">Empowering NGO partners through zero-waste surplus logistics.</p>
+        <div class="mt-6 flex justify-center gap-8 text-xs font-black text-slate-400 uppercase tracking-tighter">
+            <a href="#" class="hover:text-emerald-600">Privacy Policy</a>
+            <a href="#" class="hover:text-emerald-600">Safety Protocol</a>
+            <a href="#" class="hover:text-emerald-600">Impact Reports</a>
+        </div>
+    </div>
+</footer>
 
 <!-- Notification Toast -->
 <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 translate-y-32 transition-transform">
@@ -318,13 +380,11 @@
     const apiKey = "AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE";
     let map, marker, geocoder, elevationService;
 
-    // Initialize Google Map and Services
     function initMap() {
-        // Use existing coords if available (Edit Mode)
         const latVal = /*[[${ngo.latitude}]]*/ 20.5937;
         const lngVal = /*[[${ngo.longitude}]]*/ 78.9629;
-
         const defaultLocation = { lat: latVal || 20.5937, lng: lngVal || 78.9629 };
+
         geocoder = new google.maps.Geocoder();
         elevationService = new google.maps.ElevationService();
 
@@ -337,7 +397,6 @@
             styles: [
                 { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "visibility": "off" }] },
                 { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
-                { "featureType": "road", "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
                 { "featureType": "transit", "stylers": [{ "visibility": "off" }] }
             ]
         });
@@ -346,11 +405,9 @@
             position: defaultLocation,
             map: map,
             draggable: true,
-            animation: google.maps.Animation.DROP,
-            title: "Your Location"
+            animation: google.maps.Animation.DROP
         });
 
-        // Initialize display
         if(latVal && lngVal) {
             updateCoordinates(latVal, lngVal, /*[[${ngo.altitude}]]*/ 0);
         }
@@ -367,156 +424,98 @@
         });
     }
 
-    // 1. Locate Me Logic
     function locateMe() {
         if (!navigator.geolocation) {
-            showToast("Geolocation is not supported by your browser", "error");
+            showToast("Geolocation not supported", "error");
             return;
         }
-
         document.getElementById('statusIndicator').innerText = "FETCHING GPS...";
-
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const { latitude, longitude, altitude } = pos.coords;
             const position = { lat: latitude, lng: longitude };
             map.setCenter(position);
             map.setZoom(17);
             marker.setPosition(position);
-
             updateCoordinates(latitude, longitude, altitude);
             fetchDetailsFromCoords(latitude, longitude, altitude);
         }, (err) => {
-            showToast("GPS access denied. Please allow location permissions.", "error");
-            document.getElementById('statusIndicator').innerText = "GPS PERMISSION DENIED";
+            showToast("GPS Permission Denied", "error");
         }, { enableHighAccuracy: true });
     }
 
     async function fetchDetailsFromCoords(lat, lng, providedAlt = null) {
         updateCoordinates(lat, lng, providedAlt);
-
         geocoder.geocode({ location: { lat, lng } }, (results, status) => {
             if (status === "OK" && results[0]) {
                 const result = results[0];
-                const addressField = document.getElementById('address');
-                const cityField = document.getElementById('city');
-                const pincodeField = document.getElementById('pincode');
-
-                if(addressField) addressField.value = result.formatted_address;
-
+                document.getElementById('address').value = result.formatted_address;
                 result.address_components.forEach(comp => {
-                    if (cityField && comp.types.includes('locality')) cityField.value = comp.long_name;
-                    if (pincodeField && comp.types.includes('postal_code')) pincodeField.value = comp.long_name;
+                    if (comp.types.includes('locality')) document.getElementById('city').value = comp.long_name;
+                    if (comp.types.includes('postal_code')) document.getElementById('pincode').value = comp.long_name;
                 });
-                showToast("Address synchronized!");
+                showToast("Address synced!");
             }
         });
 
-        let finalAlt = providedAlt;
-        if (finalAlt === null || finalAlt === 0) {
-            elevationService.getElevationForLocations({
-                locations: [{ lat, lng }]
-            }, (results, status) => {
-                if (status === "OK" && results[0]) {
-                    finalAlt = results[0].elevation;
-                    updateCoordinates(lat, lng, finalAlt);
-                }
+        if (providedAlt === null || providedAlt === 0) {
+            elevationService.getElevationForLocations({ locations: [{ lat, lng }] }, (results, status) => {
+                if (status === "OK" && results[0]) updateCoordinates(lat, lng, results[0].elevation);
             });
         }
     }
 
     async function geocodeFromFields() {
-        const addrEl = document.getElementById('address');
-        const cityEl = document.getElementById('city');
-        const pinEl = document.getElementById('pincode');
+        const addr = document.getElementById('address').value;
+        const city = document.getElementById('city').value;
+        const pin = document.getElementById('pincode').value;
+        const query = [addr, city, pin].filter(x => x.trim().length > 0).join(', ');
+        if (!query) return;
 
-        if(!addrEl || !cityEl || !pinEl) return;
-
-        const addr = addrEl.value.trim();
-        const city = cityEl.value.trim();
-        const pin = pinEl.value.trim();
-
-        const queryParts = [addr, city, pin].filter(x => x.length > 0);
-        if (queryParts.length === 0) return;
-
-        const fullAddress = queryParts.join(', ');
-        document.getElementById('statusIndicator').innerText = "SEARCHING MAP...";
-
-        geocoder.geocode({ address: fullAddress }, (results, status) => {
+        document.getElementById('statusIndicator').innerText = "SEARCHING...";
+        geocoder.geocode({ address: query }, (results, status) => {
             if (status === "OK" && results[0]) {
-                const result = results[0];
-                const { lat, lng } = result.geometry.location;
-                const latVal = lat();
-                const lngVal = lng();
-
-                const position = { lat: latVal, lng: lngVal };
-                map.setCenter(position);
+                const pos = results[0].geometry.location;
+                map.setCenter(pos);
                 map.setZoom(17);
-                marker.setPosition(position);
-
-                elevationService.getElevationForLocations({
-                    locations: [{ lat: latVal, lng: lngVal }]
-                }, (elevResults, elevStatus) => {
+                marker.setPosition(pos);
+                elevationService.getElevationForLocations({ locations: [pos] }, (elevResults, elevStatus) => {
                     const alt = (elevStatus === "OK" && elevResults[0]) ? elevResults[0].elevation : 0;
-                    updateCoordinates(latVal, lngVal, alt);
+                    updateCoordinates(pos.lat(), pos.lng(), alt);
                 });
-
                 showToast("Coordinates verified!");
-            } else {
-                showToast("Could not find that location on the map.", "error");
             }
         });
     }
 
-    let debounceTimer;
     function handleManualInput() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => geocodeFromFields(), 1500);
+        clearTimeout(window.debounceTimer);
+        window.debounceTimer = setTimeout(() => geocodeFromFields(), 1500);
     }
 
     function updateCoordinates(lat, lng, alt) {
-        const latEl = document.getElementById('latitude');
-        const lngEl = document.getElementById('longitude');
-        const altEl = document.getElementById('altitude');
-
-        if(latEl) latEl.value = lat;
-        if(lngEl) lngEl.value = lng;
-        if(altEl) altEl.value = alt || 0;
-
-        const latDisplay = document.getElementById('latDisplay');
-        const lngDisplay = document.getElementById('lngDisplay');
-        const altDisplay = document.getElementById('altDisplay');
-
-        if(latDisplay) latDisplay.innerText = (typeof lat === 'number' ? lat : parseFloat(lat)).toFixed(6);
-        if(lngDisplay) lngDisplay.innerText = (typeof lng === 'number' ? lng : parseFloat(lng)).toFixed(6);
-        if(altDisplay) altDisplay.innerText = alt ? parseFloat(alt).toFixed(2) : "0.00";
-
-        const statusIndicator = document.getElementById('statusIndicator');
-        if(statusIndicator) {
-            statusIndicator.innerText = "COORDINATES VERIFIED";
-            statusIndicator.style.color = "#10b981";
-        }
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        document.getElementById('altitude').value = alt || 0;
+        document.getElementById('latDisplay').innerText = parseFloat(lat).toFixed(6);
+        document.getElementById('lngDisplay').innerText = parseFloat(lng).toFixed(6);
+        document.getElementById('altDisplay').innerText = alt ? parseFloat(alt).toFixed(2) : "0.00";
+        document.getElementById('statusIndicator').innerText = "VERIFIED";
+        document.getElementById('statusIndicator').style.color = "#10b981";
     }
 
     function updateFileLabel(input) {
         if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const fileInfo = document.getElementById('fileInfo');
-            const fileNameDisplay = document.getElementById('fileNameDisplay');
-
-            if(fileInfo) fileInfo.classList.remove('hidden');
-            if(fileNameDisplay) fileNameDisplay.innerText = file.name;
+            document.getElementById('fileInfo').classList.remove('hidden');
+            document.getElementById('fileNameDisplay').innerText = input.files[0].name;
         }
     }
 
     function showToast(msg, type = "success") {
         const toast = document.getElementById('toast');
         const toastMsg = document.getElementById('toastMsg');
-        if(!toast || !toastMsg) return;
-
         toastMsg.innerText = msg;
         if (type === "error") toast.classList.replace('bg-slate-900', 'bg-red-600');
         else toast.classList.replace('bg-red-600', 'bg-slate-900');
-
         toast.classList.remove('translate-y-32');
         setTimeout(() => toast.classList.add('translate-y-32'), 3500);
     }

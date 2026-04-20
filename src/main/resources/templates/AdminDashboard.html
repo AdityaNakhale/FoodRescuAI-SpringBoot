@@ -129,10 +129,11 @@
                             <td class="px-6 py-5 text-xs text-slate-500" th:text="${donor.city + ', ' + donor.state}">Location</td>
                             <td class="px-8 py-5">
                                 <div class="flex gap-2 items-center">
-                                    <button th:onclick="'loadEditForm(\'donor\', ' + ${donor.id} + ')'" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm">
+                                    <button th:onclick="'loadViewForm(\'donor\', ' + ${donor.id} + ')'" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Profile">
                                         <i class="fas fa-eye text-xs"></i>
                                     </button>
-                                    <a th:href="@{/admin/deleteDonor/{id}(id=${donor.id})}" onclick="return confirm('Delete?')" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
+
+                                    <a th:href="@{/admin/deleteDonor/{id}(id=${donor.id}, section='donorTable')}" onclick="return confirm('Are you sure you want to delete this donor?')" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -170,10 +171,11 @@
                             <td class="px-6 py-5 text-xs text-slate-500" th:text="${ngo.city + ', ' + ngo.pincode}">Loc</td>
                             <td class="px-8 py-5">
                                 <div class="flex gap-2 items-center">
-                                    <button th:onclick="'loadEditForm(\'ngo\', ' + ${ngo.id} + ')'" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm">
+                                    <button th:onclick="'loadViewForm(\'ngo\', ' + ${ngo.id} + ')'" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm" title="View Profile">
                                         <i class="fas fa-eye text-xs"></i>
                                     </button>
-                                    <a th:href="@{/admin/deleteNgo/{id}(id=${ngo.id})}" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
+
+                                    <a th:href="@{/admin/deleteNgo/{id}(id=${ngo.id}, section='ngoTable')}" onclick="return confirm('Are you sure you want to delete this NGO?')" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -237,7 +239,7 @@
 <!-- Google Maps API -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE"></script>
 
-<script>
+<script th:inline="javascript">
     function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
 
     function resetUI() {
@@ -263,116 +265,41 @@
         });
     }
 
-    async function loadEditForm(type, id) {
-        console.log(`Loading edit form for ${type} with ID: ${id}`);
+    // Load View Form Fragment
+    async function loadViewForm(type, id) {
         resetUI();
         const container = document.getElementById('dynamicContent');
         const prefix = type === 'donor' ? 'd_' : 'n_';
 
         try {
-            const htmlRes = await fetch(`/admin/load/edit-${type}/${id}`);
+            const htmlRes = await fetch(`/admin/load/view-${type}/${id}`);
             if (!htmlRes.ok) throw new Error(`HTTP error! status: ${htmlRes.status}`);
 
             const html = await htmlRes.text();
             container.innerHTML = html;
 
-            document.getElementById('sectionTitle').innerText = `Edit ${type.toUpperCase()} Profile`;
+            document.getElementById('sectionTitle').innerText = `View ${type.toUpperCase()} Profile`;
 
-            const formId = `edit${type.charAt(0).toUpperCase() + type.slice(1)}Form`;
-            const form = document.getElementById(formId);
-            if (form) {
-                form.onsubmit = (e) => {
-                    e.preventDefault();
-                    submitDynamicForm(`/admin/api/${type}/update`, form.id, `${type.toUpperCase()} Profile Updated!`);
-                };
-            }
-
-            // Map Initialization
             setTimeout(() => {
                 try {
-                    const latIn = document.getElementById(prefix + 'lat');
-                    const lngIn = document.getElementById(prefix + 'lng');
-                    const lat = latIn ? parseFloat(latIn.value) : 20.5937;
-                    const lng = lngIn ? parseFloat(lngIn.value) : 78.9629;
+                    const latVal = document.getElementById(prefix + 'lat')?.value || 20.5937;
+                    const lngVal = document.getElementById(prefix + 'lng')?.value || 78.9629;
+                    const mapId = type === 'donor' ? 'map' : 'ngoMap';
+                    const mapEl = document.getElementById(mapId);
 
-                    if (typeof google !== 'undefined' && google.maps) {
-                        initGoogleMap(
-                            type === 'donor' ? 'map' : 'ngoMap',
-                            prefix + 'lat',
-                            prefix + 'lng',
-                            type === 'donor' ? 'latDisp' : 'nLatDisp',
-                            type === 'donor' ? 'lngDisp' : 'nLngDisp',
-                            lat,
-                            lng
-                        );
+                    if (mapEl && typeof google !== 'undefined') {
+                        const coords = { lat: parseFloat(latVal), lng: parseFloat(lngVal) };
+                        const map = new google.maps.Map(mapEl, {
+                            zoom: 15, center: coords,
+                            mapTypeControl: false, draggable: false, scrollwheel: false
+                        });
+                        new google.maps.Marker({ position: coords, map: map });
                     }
-                } catch (mapErr) {
-                    console.error("Map initialization failed", mapErr);
-                }
+                } catch (mapErr) { console.error(mapErr); }
             }, 200);
-
         } catch (e) {
-            console.error("Fragment load failed", e);
             showToast("Error loading profile", "error");
         }
-    }
-
-    function initGoogleMap(mapId, latId, lngId, latDispId, lngDispId, lat, lng) {
-        const coords = { lat: parseFloat(lat) || 20.5937, lng: parseFloat(lng) || 78.9629 };
-        const mapEl = document.getElementById(mapId);
-        if (!mapEl) return;
-
-        const map = new google.maps.Map(mapEl, { zoom: 15, center: coords, mapTypeControl: false });
-        const marker = new google.maps.Marker({ position: coords, map: map, draggable: true });
-
-        google.maps.event.addListener(marker, 'dragend', () => {
-            const p = marker.getPosition();
-            const latIn = document.getElementById(latId);
-            const lngIn = document.getElementById(lngId);
-            const latD = document.getElementById(latDispId);
-            const lngD = document.getElementById(lngDispId);
-
-            if (latIn) latIn.value = p.lat();
-            if (lngIn) lngIn.value = p.lng();
-            if (latD) latD.innerText = p.lat().toFixed(6);
-            if (lngD) lngD.innerText = p.lng().toFixed(6);
-        });
-    }
-
-    function submitDynamicForm(url, formId, successMsg) {
-        const formData = {};
-        const inputs = document.querySelectorAll(`#${formId} input, #${formId} select, #${formId} textarea`);
-
-        inputs.forEach(i => {
-            if(i.name) {
-                const cleanName = i.name.includes('.') ? i.name.split('.').pop() : i.name;
-                formData[cleanName] = i.value;
-            }
-        });
-
-        const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
-
-        const headers = { 'Content-Type': 'application/json' };
-        if (csrfHeader && csrfToken) {
-            headers[csrfHeader] = csrfToken;
-        }
-
-        fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(formData)
-        }).then(res => {
-            if(res.ok) {
-                showToast(successMsg);
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                showToast("Update failed. Check permissions.", "error");
-            }
-        }).catch(err => {
-            console.error("Fetch error:", err);
-            showToast("Network Error", "error");
-        });
     }
 
     function showToast(msg, type = "success") {
@@ -386,6 +313,110 @@
         toast.classList.remove('translate-y-32');
         setTimeout(() => toast.classList.add('translate-y-32'), 3000);
     }
+
+    // Global Search Functionality
+    document.getElementById('adminGlobalSearch').addEventListener('input', async function () {
+        const keyword = this.value.trim();
+        try {
+            const [donorsRes, ngosRes, donationsRes] = await Promise.all([
+                fetch(`/admin/api/search/donors?keyword=${keyword}`),
+                fetch(`/admin/api/search/ngos?keyword=${keyword}`),
+                fetch(`/admin/api/search/donations?keyword=${keyword}`)
+            ]);
+
+            updateDonorTable(await donorsRes.json());
+            updateNgoTable(await ngosRes.json());
+            updateDonationTable(await donationsRes.json());
+        } catch (err) {
+            console.error("Search failed:", err);
+        }
+    });
+
+    function updateDonorTable(data) {
+        const tbody = document.getElementById('donorTableBody');
+        tbody.innerHTML = data.map(donor => `
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-8 py-5">
+                    <p class="font-bold text-slate-900">${donor.organizationName}</p>
+                    <p class="text-xs text-slate-500">${donor.fullName}</p>
+                </td>
+                <td class="px-6 py-5 text-sm">
+                    <span class="text-slate-700 font-medium">${donor.donorType}</span><br>
+                    <span class="text-[10px] text-indigo-500 font-bold">${donor.fssai}</span>
+                </td>
+                <td class="px-6 py-5 text-sm">
+                    <p>${donor.email}</p>
+                    <p class="text-xs text-slate-500">${donor.mobile}</p>
+                </td>
+                <td class="px-6 py-5 text-xs text-slate-500">${donor.city}, ${donor.state}</td>
+                <td class="px-8 py-5">
+                    <div class="flex gap-2 items-center">
+                        <button onclick="loadViewForm('donor', ${donor.id})" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-eye text-xs"></i></button>
+                        <a href="/admin/deleteDonor/${donor.id}?section=donorTable" onclick="return confirm('Delete?')" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function updateNgoTable(data) {
+        const tbody = document.getElementById('ngoTableBody');
+        tbody.innerHTML = data.map(ngo => `
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-8 py-5">
+                    <p class="font-bold text-slate-900">${ngo.ngoName}</p>
+                    <p class="text-xs text-slate-500">${ngo.contactPerson}</p>
+                </td>
+                <td class="px-6 py-5 text-sm">
+                    <span class="font-mono font-bold text-indigo-600">${ngo.registrationNumber}</span><br>
+                    <span class="text-[10px] uppercase font-black text-slate-400">${ngo.ngoType}</span>
+                </td>
+                <td class="px-6 py-5 text-sm"><span class="px-2 py-1 bg-slate-100 rounded text-slate-600 font-bold">${ngo.capacity} persons</span></td>
+                <td class="px-6 py-5 text-xs text-slate-500">${ngo.city}, ${ngo.pincode}</td>
+                <td class="px-8 py-5">
+                    <div class="flex gap-2 items-center">
+                        <button onclick="loadViewForm('ngo', ${ngo.id})" class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-eye text-xs"></i></button>
+                        <a href="/admin/deleteNgo/${ngo.id}?section=ngoTable" onclick="return confirm('Delete?')" class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-all shadow-sm"><i class="fas fa-trash text-xs"></i></a>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function updateDonationTable(data) {
+        const tbody = document.getElementById('donationTableBody');
+        tbody.innerHTML = data.map(food => `
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-8 py-5"><p class="font-bold text-slate-900">${food.foodName}</p></td>
+                <td class="px-6 py-5 text-sm">
+                    <span class="font-medium text-slate-700">${food.category}</span><br>
+                    <span class="text-xs font-black text-indigo-600">${food.quantity} Units</span>
+                </td>
+                <td class="px-6 py-5 text-xs text-slate-500">
+                    <p class="font-bold text-slate-700">${food.pickupDate}</p>
+                    <p>${food.pickupTime}</p>
+                </td>
+                <td class="px-6 py-5">
+                    <span class="${food.statusrequest === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'} px-2 py-1 text-[10px] font-black uppercase rounded">${food.statusrequest}</span>
+                </td>
+                <td class="px-8 py-5 text-[10px] font-mono text-slate-400">D_ID: ${food.restaurantId}<br>N_ID: ${food.assignedNgoId}</td>
+            </tr>
+        `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Handle Thymeleaf variable injection safely
+        /*[# th:if="${activeSection != null}"]*/
+        const serverSection = [[${activeSection}]];
+        /*[/]*/
+
+        // Fallback to URL search params if Thymeleaf injection is tricky
+        const urlParams = new URLSearchParams(window.location.search);
+        const sectionParam = urlParams.get('section');
+
+        const sectionToShow = sectionParam || (typeof serverSection !== 'undefined' ? serverSection : 'statsSection');
+        showSection(sectionToShow);
+    });
 </script>
 </body>
 </html>

@@ -44,24 +44,29 @@ public class DashboardController {
     private AllocationRequestRepository allocationRepo;
 
     @GetMapping("/user")
-    public String userDashboard(HttpSession session, Model model) {
+    public String userDashboard(HttpSession session, Model model,
+                                @RequestParam(required = false) String section) {
         DonorRegistration user = (DonorRegistration) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
         }
+
+        // Set session and model attributes
         session.setAttribute("userId", user.getId());
-        session.setAttribute("user", user);
         model.addAttribute("user", user);
 
-
-
+        // 1. If 'donation' wasn't passed via FlashAttributes (from Edit), provide a new one
         if (!model.containsAttribute("donation")) {
-            model.addAttribute("donation", new FoodDonar());
+            FoodDonar newDonation = new FoodDonar();
+            newDonation.setRestaurantId(user.getId()); // Pre-set the owner ID
+            model.addAttribute("donation", newDonation);
         }
 
-
-
+        // 2. Load the specific user's donation history
         model.addAttribute("donations", donationRepository.findByRestaurantId(user.getId()));
+
+        // 3. Determine which tab to show. If null, default to dashboardSection
+        model.addAttribute("activeSection", (section != null) ? section : "dashboardSection");
 
         return "DonarDashboard";
     }
@@ -97,8 +102,7 @@ public class DashboardController {
 
     @GetMapping("/ngo")
     public String ngoDashboard(HttpSession session, Model model) {
-        NGORegistration ngo = (NGORegistration) session.getAttribute("user");
-        // 1. Security check: Ensure the user is logged in as an NGO
+        // 1. Fetch user identification from session
         Long ngoId = (Long) session.getAttribute("userId");
         String role = (String) session.getAttribute("userRole");
 
@@ -106,29 +110,45 @@ public class DashboardController {
             return "redirect:/login";
         }
 
-        // 2. Find all AllocationRequests for this NGO
+        // 2. Fetch all allocation records for this specific NGO
         List<AllocationRequest> allocations = allocationRepo.findByNgoId(ngoId);
 
-        // 3. From those allocations, fetch the actual Food details from DonationRepository
-        List<FoodDonar> allocatedFoodItems = new ArrayList<>();
+        // 3. Initialize separate lists for pending and rescued items
+        List<FoodDonar> pendingFood = new ArrayList<>();
+        List<FoodDonar> rescuedFood = new ArrayList<>();
+      //  List<FoodDonar> allocatedFoodItems = new ArrayList<>();
+
 
         for (AllocationRequest request : allocations) {
-            // Fetch food detail by the foodId stored in the allocation
             Optional<FoodDonar> foodDetail = donationRepository.findById(request.getFoodId());
+            // If the food exists, add it to our list
+            //  foodDetail.ifPresent(allocatedFoodItems::add);
 
-            // If the food exists, add it to our list (optionally you can attach the status from the request)
-            foodDetail.ifPresent(allocatedFoodItems::add);
+            if (foodDetail.isPresent()) {
+                FoodDonar food = foodDetail.get();
+
+                // Determine which list the food belongs to based on the Allocation status
+                if ("RESCUED".equalsIgnoreCase(request.getStatus())) {
+                    rescuedFood.add(food);
+                } else {
+                    pendingFood.add(food);
+                }
+            }
         }
 
-        // 4. Add the list to the model to display on the dashboard
-        model.addAttribute("allocatedFood", allocatedFoodItems);
-        model.addAttribute("totalAllocations", allocatedFoodItems.size());
+        // 4. Pass data to the view (test2.html)
+        model.addAttribute("allocatedFood", pendingFood);
+        model.addAttribute("pendingFood", pendingFood);
+        model.addAttribute("rescuedFood", rescuedFood);
+        model.addAttribute("totalAllocations", pendingFood.size());
+        model.addAttribute("totalRescued", rescuedFood.size());
 
-        model.addAttribute("ngo", ngo);
+        // Also fetch all available food for the Marketplace section
         model.addAttribute("availableFoodList", donationRepository.findAll());
+        model.addAttribute("ngo", session.getAttribute("user"));
+
         return "test2";
     }
-
 
     /**
      * Marks the food as rescued.
@@ -141,12 +161,11 @@ public class DashboardController {
 
         // 1. Update the donor's food status so the Donor knows it is rescued
         donationRepository.findById(foodId).ifPresent(food -> {
-            food.setStatusrequest("RESCUED"); // Assuming statusrequest is the field name for status
+            food.setStatusrequest("RESCUED");
             donationRepository.save(food);
         });
 
         // 2. Update the Allocation Request status to keep records consistent
-        // We find the specific allocation for this NGO and this food
         List<AllocationRequest> requests = allocationRepo.findByNgoId(ngoId);
         for (AllocationRequest req : requests) {
             if (req.getFoodId().equals(foodId)) {
@@ -157,6 +176,34 @@ public class DashboardController {
 
         return "redirect:/dashboard/ngo";
     }
+
+
+    /**
+     * Handles the "Claim for Rescue" hyperlinking from the Marketplace.
+     * Maps to: th:href="@{/ngo/claim/{id}(id=${food.id})}"
+     */
+    @GetMapping("/claim/{id}")
+    public String claimFood(@PathVariable Long id, HttpSession session) {
+        Long ngoId = (Long) session.getAttribute("userId");
+        if (ngoId == null) return "redirect:/login";
+
+        // 1. Create a link record in the AllocationRequest table
+        AllocationRequest newRequest = new AllocationRequest();
+        newRequest.setFoodId(id);
+        newRequest.setNgoId(ngoId);
+        newRequest.setStatus("CLAIMED"); // Initial status
+
+        allocationRepo.save(newRequest);
+
+        // 2. Notify the Donor by updating the status in the main Food record
+        donationRepository.findById(id).ifPresent(food -> {
+            food.setStatusrequest("CLAIMED");
+            donationRepository.save(food);
+        });
+
+        return "redirect:/dashboard/ngo";
+    }
+
     @GetMapping("/NGO")
     public String ngoUpdateForm(HttpSession session, Model model) {
         NGORegistration ngo = (NGORegistration) session.getAttribute("ngo");

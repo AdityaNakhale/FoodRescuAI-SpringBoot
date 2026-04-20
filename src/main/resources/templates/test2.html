@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <!-- INTERNAL CSS -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
@@ -21,7 +20,7 @@
             --slate-200: #e2e8f0;
             --slate-400: #94a3b8;
             --slate-500: #64748b;
-            --glass: rgba(255, 255, 255, 0.9);
+            --glass: rgba(255, 255, 255, 0.85);
         }
 
         body {
@@ -29,6 +28,7 @@
             background-color: var(--slate-50);
             color: var(--dark);
             margin: 0;
+            overflow-x: hidden;
         }
 
         /* SIDEBAR NAVIGATION */
@@ -41,15 +41,15 @@
             left: 0;
             top: 0;
             z-index: 50;
-            transition: all 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-link {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.875rem 1.5rem;
-            color: var(--slate-400);
+            padding: 0.875rem 1.25rem;
+            color: var(--slate-500);
             font-weight: 600;
             border-radius: 0.75rem;
             margin: 0.25rem 1rem;
@@ -70,100 +70,14 @@
         /* MAIN CONTENT AREA */
         .main-content {
             margin-left: 280px;
-            padding: 2rem;
+            padding: 1.5rem 2rem;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            transition: margin-left 0.3s ease;
         }
-
-        .content-body {
-            flex: 1;
-            padding-bottom: 4rem;
-        }
-
-        .fb-card {
-            background: white;
-            border-radius: 1.5rem;
-            border: 1px solid var(--slate-200);
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        /* --- MODERN FOOD CARD STYLING --- */
-        .food-card {
-            background: white;
-            border-radius: 1.75rem;
-            border: 1px solid var(--slate-200);
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            position: relative;
-        }
-
-        .food-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
-            border-color: var(--primary-light);
-        }
-
-        .food-card.hidden-card {
-            display: none;
-        }
-
-        .food-image-container {
-            height: 200px;
-            width: 100%;
-            position: relative;
-            background: var(--slate-100);
-            overflow: hidden;
-        }
-
-        .food-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .food-card:hover .food-image-container img {
-            transform: scale(1.05);
-        }
-
-        .type-badge {
-            position: absolute;
-            top: 1.25rem;
-            left: 1.25rem;
-            padding: 0.4rem 0.85rem;
-            border-radius: 0.875rem;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-
-        .type-veg { background: #10b981; color: white; }
-        .type-non-veg { background: #ef4444; color: white; }
-        .type-both { background: #f59e0b; color: white; }
-
-        .ai-badge {
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .hidden-section { display: none; }
 
         .top-bar {
-            background: white;
+            background: var(--glass);
+            backdrop-filter: blur(8px);
             height: 70px;
             border-bottom: 1px solid var(--slate-200);
             display: flex;
@@ -173,525 +87,1186 @@
             position: sticky;
             top: 0;
             z-index: 40;
+            margin: -1.5rem -2rem 2rem -2rem;
         }
 
-        /* FILTER SECTION STYLING */
-        .filter-panel {
+        .fb-card {
             background: white;
-            border-radius: 1.25rem;
+            border-radius: 1.5rem;
             border: 1px solid var(--slate-200);
-            padding: 1.25rem;
-            margin-bottom: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            align-items: flex-end;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
         }
 
-        .filter-group {
+        /* FOOD CARDS */
+        .food-card {
+            background: white;
+            border-radius: 1.5rem;
+            border: 1px solid var(--slate-200);
+            overflow: hidden;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            flex: 1;
-            min-width: 150px;
+            height: 100%;
+            cursor: pointer;
+            padding: 1.5rem;
+            position: relative;
         }
 
-        .filter-group label {
-            font-size: 0.7rem;
+        .food-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.2);
+            border-color: var(--primary);
+        }
+
+        .food-card.hidden-card { display: none; }
+
+        .badge-veg { background: #dcfce7; color: #166534; }
+        .badge-non-veg { background: #fee2e2; color: #991b1b; }
+        .badge-both { background: #fef3c7; color: #92400e; }
+
+        .card-btn-action {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.85rem;
+            border-radius: 1rem;
             font-weight: 800;
-            color: var(--slate-400);
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2);
         }
 
-        .filter-select {
+        .food-card:hover .card-btn-action {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .card-btn-photo {
+            width: 3.5rem;
+            height: 3.5rem;
+            background: #0f172a;
+            color: white;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(15, 23, 42, 0.15);
+            flex-shrink: 0;
+        }
+
+        .card-btn-photo:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* FORM SECTION STYLES */
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .form-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.2), transparent);
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--slate-500);
+            margin-bottom: 0.5rem;
+            margin-left: 0.25rem;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
             background: var(--slate-50);
             border: 1px solid var(--slate-200);
             border-radius: 0.75rem;
-            padding: 0.6rem 1rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--dark);
-            cursor: pointer;
+            font-size: 0.95rem;
             transition: all 0.2s;
-            width: 100%;
+            font-weight: 500;
         }
 
-        .filter-select:focus {
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
             outline: none;
             border-color: var(--primary);
             background: white;
-            box-shadow: 0 0 0 3px var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
         }
 
-        .btn-clear-filters {
-            padding: 0.6rem 1.25rem;
-            border-radius: 0.75rem;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--slate-500);
-            background: var(--slate-100);
-            transition: all 0.2s;
-            height: 38px;
-            white-space: nowrap;
-        }
-
-        .btn-clear-filters:hover {
-            background: #fee2e2;
-            color: #ef4444;
-        }
-
-        /* Improved Detail Tags */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .info-tile {
-            background: var(--slate-50);
-            padding: 0.75rem;
-            border-radius: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .info-tile:hover {
-            border-color: var(--slate-200);
+        .locate-btn {
             background: white;
-        }
-
-        .info-tile label {
-            font-size: 0.6rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--slate-400);
-            letter-spacing: 0.025em;
-        }
-
-        .info-tile span {
-            font-size: 0.85rem;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.6rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            color: var(--dark);
+            transition: all 0.2s;
         }
+        .locate-btn:hover { background: var(--primary); color: white; }
 
-        .expiry-warning {
-            background: #fff7ed !important;
-        }
-        .expiry-warning label { color: #f97316 !important; }
-        .expiry-warning span { color: #c2410c !important; }
-
-        .location-box {
-            background: var(--slate-50);
-            padding: 1rem;
+        #map {
+            width: 100%;
+            height: 350px;
             border-radius: 1.25rem;
-            margin-bottom: 1.5rem;
+            border: 2px solid var(--slate-200);
+            margin-top: 1rem;
+        }
+
+        .coordinate-badge {
+            background: var(--slate-100);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--slate-500);
             border: 1px dashed var(--slate-200);
         }
 
-        @media (max-width: 768px) {
+        .file-upload-area {
+            border: 2px dashed var(--slate-200);
+            padding: 2rem;
+            text-align: center;
+            border-radius: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .file-upload-area:hover { border-color: var(--primary); background: rgba(16, 185, 129, 0.02); }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .info-tile {
+            background: var(--slate-50);
+            padding: 0.6rem;
+            border-radius: 0.75rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .info-tile label { font-size: 0.55rem; font-weight: 800; text-transform: uppercase; color: var(--slate-400); }
+        .info-tile span { font-size: 0.8rem; font-weight: 700; }
+        .expiry-warning { background: #fff7ed !important; }
+        .expiry-warning label { color: #f97316 !important; }
+        .expiry-warning span { color: #c2410c !important; }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            border-radius: 2rem;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 2.5rem;
+        }
+
+        /* PHOTO PREVIEW MODAL */
+        .photo-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 110;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .photo-modal-overlay.open { display: flex; }
+        .photo-container {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+        .photo-container img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            border-radius: 1rem;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        .hidden-section { display: none; }
+
+        @media (max-width: 1024px) {
             .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 1rem; }
+            .top-bar { margin: -1rem -1rem 1.5rem -1rem; padding: 0 1rem; }
         }
     </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<aside class="sidebar">
-    <div class="p-8">
-        <div class="flex items-center gap-2 mb-10">
-            <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
-                <i class="fas fa-hand-holding-heart text-sm"></i>
+<!-- Photo Preview Modal -->
+<div id="photoPreviewModal" class="photo-modal-overlay" onclick="this.classList.remove('open')">
+    <div class="photo-container" onclick="event.stopPropagation()">
+        <button onclick="document.getElementById('photoPreviewModal').classList.remove('open')" class="absolute -top-12 -right-12 text-white text-3xl hover:text-red-400">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="fullSizePhoto" src="" alt="Food Preview">
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div id="foodDetailModal" class="modal-overlay" onclick="closeFoodModal(event)">
+    <div class="modal-content fb-card" onclick="event.stopPropagation()">
+        <!-- Close Button -->
+        <button onclick="document.getElementById('foodDetailModal').classList.remove('open')" class="absolute top-6 right-6 z-20 w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-900 hover:bg-red-50 hover:text-red-500 transition">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="flex flex-col h-full">
+            <div class="flex items-start justify-between mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="modalFoodType" class="px-3 py-1 text-[10px] font-black uppercase rounded-full">Type</span>
+                        <button id="viewPhotoBtn" onclick="openPhotoPreview()" class="px-3 py-1 bg-slate-900 text-white text-[10px] font-black uppercase rounded-full hover:bg-emerald-600 transition flex items-center gap-1.5">
+                            <i class="fas fa-camera"></i> View Food Photo
+                        </button>
+                    </div>
+                    <h2 id="modalFoodName" class="text-3xl font-black text-slate-900 leading-tight">Food Name</h2>
+                    <div class="flex gap-2 mt-3">
+                        <span id="modalCategory" class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-full">Category</span>
+                        <span id="modalMealType" class="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-full">Meal Type</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-lg shadow-emerald-100">
+                        <span id="modalQuantity" class="block text-3xl font-black leading-none">0</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider">Units Available</span>
+                    </div>
+                </div>
             </div>
-            <span class="text-xl font-extrabold tracking-tight text-slate-900">FoodRescue<span class="text-emerald-600">AI</span></span>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <div class="form-section-title">Freshness & Timing</div>
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="info-tile">
+                            <label>Prepared At</label>
+                            <span id="modalPreparedTime">-</span>
+                        </div>
+                        <div class="info-tile expiry-warning">
+                            <label>Expiry Window</label>
+                            <span id="modalExpiryTime">-</span>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Pickup Schedule</div>
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-3">
+                        <div class="flex items-center gap-3">
+                            <i class="far fa-calendar-alt text-slate-400"></i>
+                            <span id="modalPickupDate" class="text-sm font-bold text-slate-700">Date</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="far fa-clock text-slate-400"></i>
+                            <span id="modalPickupTime" class="text-sm font-bold text-slate-700">Time</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="form-section-title">Location Details</div>
+                    <a id="modalMapsLink" href="#" target="_blank" class="block p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6 hover:bg-slate-100 transition-all group">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="flex-1 overflow-hidden">
+                                <div class="flex items-center justify-between">
+                                    <p id="modalCity" class="font-black text-slate-900">City</p>
+                                    <i class="fas fa-external-link-alt text-[10px] text-slate-300 group-hover:text-emerald-500 transition-colors"></i>
+                                </div>
+                                <p id="modalAddress" class="text-xs text-slate-500 font-medium leading-relaxed mt-1 line-clamp-2">Full Address</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <div class="form-section-title">Contact Point</div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm">
+                            <i class="fas fa-user-circle text-xl"></i>
+                        </div>
+                        <div>
+                            <p id="modalContactName" class="text-sm font-black text-slate-900">Name</p>
+                            <p id="modalMobile" class="text-xs text-emerald-600 font-bold">Mobile</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <div class="form-section-title">Donor Instructions</div>
+                <div class="p-4 bg-amber-50/50 rounded-2xl border border-amber-100">
+                    <p id="modalInstructions" class="text-xs italic text-slate-600 leading-relaxed">No special instructions provided.</p>
+                </div>
+            </div>
+
+            <div class="mt-10 pt-6 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-4">
+                    <span id="modalStatusRequest" class="px-4 py-2 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-xl">Status: Pending</span>
+                </div>
+                <a id="modalRescueBtn" href="#" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-lg text-center hover:bg-emerald-700 transition shadow-xl shadow-emerald-100 flex items-center justify-center gap-3">
+                    <i class="fas fa-hand-holding-heart"></i> Claim Rescue Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Overlay -->
+<div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm"></div>
+
+<aside id="sidebar" class="sidebar">
+    <div class="p-8 h-full flex flex-col">
+        <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-slate-900">FoodRescue<span class="text-emerald-600">AI</span></span>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden text-slate-400">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
 
-        <nav class="space-y-1">
+        <nav class="space-y-1 flex-1">
             <div class="nav-link active" onclick="switchSection('overview', this)">
-                <i class="fas fa-th-large"></i> Overview
+                <i class="fas fa-th-large w-5"></i> Overview
             </div>
             <div class="nav-link" onclick="switchSection('feed', this)">
-                <i class="fas fa-utensils"></i> Available Food
+                <i class="fas fa-utensils w-5"></i> Marketplace
             </div>
             <div class="nav-link" onclick="switchSection('claims', this)">
-                <i class="fas fa-clipboard-check"></i> My Claims
+                <i class="fas fa-clipboard-check w-5"></i> My Claims
             </div>
             <div class="nav-link" onclick="switchSection('details', this)">
-                <i class="fas fa-id-card"></i> Registered Details
+                <i class="fas fa-id-card w-5"></i> Org Profile
             </div>
             <div class="nav-link" onclick="switchSection('settings', this)">
-                <i class="fas fa-cog"></i> Settings
+                <i class="fas fa-cog w-5"></i> Settings
             </div>
         </nav>
-    </div>
 
-    <div class="absolute bottom-0 w-full p-6 border-t border-slate-100">
-        <div class="flex items-center gap-3" th:if="${ngo != null}">
-            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold"
-                 th:text="${#strings.substring(ngo.ngoName,0,1)}">G</div>
-            <div>
-                <p class="text-sm font-bold text-slate-900" th:text="${ngo.ngoName}">Organization</p>
-                <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Partner</p>
+        <div class="pt-6 border-t border-slate-100">
+            <div class="flex items-center gap-3 p-2" th:if="${ngo != null}">
+                <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold"
+                     th:text="${ngo.ngoName != null && !ngo.ngoName.isEmpty() ? #strings.substring(ngo.ngoName,0,1) : 'N'}">N</div>
+                <div class="overflow-hidden">
+                    <p class="text-sm font-bold text-slate-900 truncate" th:text="${ngo.ngoName ?: 'Organization'}">Organization</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Partner</p>
+                </div>
             </div>
         </div>
     </div>
 </aside>
 
 <main class="main-content">
-    <div class="top-bar mb-8 rounded-2xl shadow-sm">
-        <div class="flex items-center gap-4 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
-            <i class="fas fa-search text-slate-400"></i>
-            <input type="text" id="mainSearchInput" placeholder="Search by food or city..." oninput="filterFoodItems()" class="bg-transparent border-none outline-none text-sm w-64">
+    <div class="top-bar">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleSidebar()" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                <i class="fas fa-search text-slate-400 text-xs"></i>
+                <input type="text" id="mainSearchInput" placeholder="Find food or city..." oninput="filterFoodItems()" class="bg-transparent border-none outline-none text-sm w-40 md:w-64">
+            </div>
         </div>
-        <div class="flex items-center gap-6">
-            <a th:href="@{/logout}" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
-                Logout
+        <div class="flex items-center gap-4">
+            <span id="display-date" class="hidden md:block text-xs font-bold text-slate-500 uppercase"></span>
+            <a th:href="@{/logout}" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-600 transition flex items-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
     </div>
 
     <div class="content-body">
+
         <!-- SECTION: OVERVIEW -->
         <div id="section-overview">
-            <div class="flex items-center justify-between mb-10">
-                <div>
-                    <h1 class="text-3xl font-black text-slate-900">
-                        Welcome Back<span th:if="${ngo != null}">, <span th:text="${ngo.ngoName}">Partner</span></span>!
-                    </h1>
-                    <p class="text-slate-400 font-medium mt-1">Here is what's available for rescue today.</p>
+            <div class="mb-8">
+                <h1 class="text-3xl font-black text-slate-900">
+                    Welcome Back<span th:if="${ngo != null}">, <span th:text="${ngo.ngoName ?: 'Partner'}">Partner</span></span>!
+                </h1>
+                <p class="text-slate-400 font-medium mt-1">Ready for another day of rescuing surplus food.</p>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="fb-card flex flex-col items-center text-center !p-6">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-2">
+                        <i class="fas fa-truck-loading"></i>
+                    </div>
+                    <span class="text-xl font-black text-slate-900">12</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Claims Made</span>
                 </div>
-                <div class="flex items-center gap-2 text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200">
-                    <i class="far fa-calendar text-emerald-500"></i> <span id="display-date"></span>
+                <div class="fb-card flex flex-col items-center text-center !p-6">
+                    <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-2">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <span class="text-xl font-black text-slate-900">45kg</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Food Rescued</span>
+                </div>
+                <div class="fb-card flex flex-col items-center text-center !p-6">
+                    <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mb-2">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span class="text-xl font-black text-slate-900">4.9</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400">NGO Rating</span>
+                </div>
+                <div class="fb-card flex flex-col items-center text-center !p-6">
+                    <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mb-2">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="text-xl font-black text-slate-900">250</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400">People Fed</span>
                 </div>
             </div>
 
-            <!-- OVERVIEW PREVIEW GRID -->
             <div class="mb-6 flex justify-between items-end">
-                <div>
-                    <h2 class="text-xl font-extrabold text-slate-900">Recommended for Rescue</h2>
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Top nodes in your geo-fence</p>
-                </div>
-                <button onclick="switchSection('feed', document.querySelector('.nav-link i.fa-utensils').parentElement)" class="text-xs font-black text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg hover:bg-emerald-600 hover:text-white transition">
-                    View Marketplace <i class="fas fa-arrow-right ml-1"></i>
+                <h2 class="text-xl font-extrabold text-slate-900">Quick Pickup Opportunities</h2>
+                <button onclick="switchSection('feed', document.querySelector('.nav-link i.fa-utensils').parentElement)" class="text-xs font-black text-emerald-600 hover:underline">
+                    Explore Marketplace <i class="fas fa-chevron-right ml-1"></i>
                 </button>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div th:each="food : ${allocatedFood}" th:if="${foodStat.index < 3}" class="food-card shadow-sm">
-                    <div class="food-image-container">
-                        <img th:if="${food.fileName != null}" th:src="@{/files/{fileName}(fileName=${food.fileName})}" alt="Food Image">
-                        <div th:unless="${food.fileName != null}" class="w-full h-full flex items-center justify-center text-slate-300">
-                            <i class="fas fa-utensils text-6xl"></i>
-                        </div>
-                        <span th:class="'type-badge ' + (${food.foodType == 'Veg' ? 'type-veg' : food.foodType == 'Non-Veg' ? 'type-non-veg' : 'type-both'})"
-                              th:text="${food.foodType}">Type</span>
-                    </div>
-
-                    <div class="p-6 flex-1 flex flex-col">
-                        <div class="flex justify-between items-start mb-5">
-                            <div>
-                                <h3 class="font-black text-xl text-slate-900 leading-tight" th:text="${food.foodName}">Biryani</h3>
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1" th:text="${food.category} + ' • ' + ${food.mealType}">Dinner • Rice</p>
-                            </div>
-                            <div class="bg-emerald-50 text-emerald-600 px-3 py-2 rounded-xl text-center min-w-[60px]">
-                                <span class="block font-black text-lg leading-none" th:text="${food.quantity}">0</span>
-                                <span class="text-[8px] font-bold uppercase tracking-tighter">Units</span>
-                            </div>
-                        </div>
-
-                        <div class="info-grid">
-                            <div class="info-tile">
-                                <label><i class="far fa-clock mr-1"></i> Prepared</label>
-                                <span th:text="${food.preparedTime}">12:00 PM</span>
-                            </div>
-                            <div class="info-tile expiry-warning">
-                                <label><i class="fas fa-hourglass-half mr-1"></i> Expiry</label>
-                                <span th:text="${food.expiryTime} + 'h Left'">4h</span>
-                            </div>
-                        </div>
-
-                        <div class="location-box">
-                            <div class="flex items-start gap-3">
-                                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 shrink-0">
-                                    <i class="fas fa-map-marker-alt text-xs"></i>
-                                </div>
-                                <div class="text-sm">
-                                    <p class="font-bold text-slate-800" th:text="${food.city}">City Name</p>
-                                    <p class="text-slate-500 text-xs leading-relaxed line-clamp-1" th:text="${food.address}">Full pickup address here</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-auto">
-                            <a th:href="@{/dashboard/rescue/{id}(id=${food.id})}" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-black text-sm text-center hover:bg-emerald-700 transition flex items-center justify-center gap-2">
-                                <i class="fas fa-hand-holding-heart"></i> Rescue This Food
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION: AVAILABLE FOOD (WITH FILTERS) -->
-        <div id="section-feed" class="hidden-section">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-3xl font-black text-slate-900">Available Food Surplus</h1>
-                    <p class="text-slate-400 font-medium">Browse and filter surplus ready for pick-up.</p>
-                </div>
-                <span class="ai-badge">AI Optimized Feed</span>
-            </div>
-
-            <!-- FILTER PANEL -->
-            <div class="filter-panel">
-                <div class="filter-group">
-                    <label>Food Type</label>
-                    <select id="filterType" onchange="filterFoodItems()" class="filter-select">
-                        <option value="all">All Types</option>
-                        <option value="Veg">Veg Only</option>
-                        <option value="Non-Veg">Non-Veg Only</option>
-                        <option value="Both">Both</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Category</label>
-                    <select id="filterCategory" onchange="filterFoodItems()" class="filter-select">
-                        <option value="all">All Categories</option>
-                        <option value="Rice">Rice</option>
-                        <option value="Roti">Roti</option>
-                        <option value="Curry">Curry</option>
-                        <option value="Sweets">Sweets</option>
-                        <option value="Bakery">Bakery</option>
-                        <option value="Packaged">Packaged</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Meal Type</label>
-                    <select id="filterMeal" onchange="filterFoodItems()" class="filter-select">
-                        <option value="all">All Meals</option>
-                        <option value="Breakfast">Breakfast</option>
-                        <option value="Lunch">Lunch</option>
-                        <option value="Dinner">Dinner</option>
-                        <option value="Snacks">Snacks</option>
-                    </select>
-                </div>
-                <button onclick="clearFilters()" class="btn-clear-filters">
-                    <i class="fas fa-undo-alt mr-2"></i> Clear
-                </button>
-            </div>
-
-            <div id="foodGrid" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-                <!-- Standardized Food Card for Feed -->
-                <!-- We add data attributes to facilitate client-side JS filtering -->
-                <div th:each="food : ${availableFoodList}"
-                     class="food-card shadow-sm hover:shadow-xl"
-                     th:attr="data-name=${#strings.toLowerCase(food.foodName)},
-                              data-city=${#strings.toLowerCase(food.city)},
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:each="food : ${allocatedFood}" th:if="${foodStat.index < 3}" class="food-card"
+                     onclick="openFoodModal(this)"
+                     th:attr="data-id=${food.id},
+                              data-name=${food.foodName},
                               data-type=${food.foodType},
+                              data-meal=${food.mealType},
                               data-category=${food.category},
-                              data-meal=${food.mealType}">
+                              data-qty=${food.quantity},
+                              data-prep=${food.preparedTime},
+                              data-exp=${food.expiryTime},
+                              data-addr=${food.address},
+                              data-city=${food.city},
+                              data-date=${food.pickupDate != null ? #dates.format(food.pickupDate, 'dd MMM, yyyy') : 'N/A'},
+                              data-time=${food.pickupTime},
+                              data-contact=${food.contactName},
+                              data-mobile=${food.mobile},
+                              data-notes=${food.instructions},
+                              data-status=${food.statusrequest},
+                              data-file=${food.fileName}">
 
-                    <div class="food-image-container">
-                        <img th:if="${food.fileName != null}" th:src="@{/files/{fileName}(fileName=${food.fileName})}" alt="Surplus Food">
-                        <div th:unless="${food.fileName != null}" class="w-full h-full flex items-center justify-center text-slate-200">
-                            <i class="fas fa-camera text-6xl"></i>
-                        </div>
-                        <span th:class="'type-badge ' + (${food.foodType == 'Veg' ? 'type-veg' : food.foodType == 'Non-Veg' ? 'type-non-veg' : 'type-both'})"
-                              th:text="${food.foodType}">Veg</span>
-                    </div>
-
-                    <div class="p-6 flex-1 flex flex-col">
-                        <div class="flex justify-between items-start mb-5">
-                            <h3 class="font-black text-2xl text-slate-900 leading-tight" th:text="${food.foodName}">Biryani</h3>
-                            <div class="bg-emerald-50 text-emerald-600 px-3 py-2 rounded-xl text-center">
-                                <span class="block font-black text-xl leading-none" th:text="${food.quantity}">0</span>
-                                <span class="text-[9px] font-bold uppercase tracking-tighter">Items</span>
+                    <div class="flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span th:class="'px-2 py-0.5 text-[8px] font-black uppercase rounded ' + (${food.foodType == 'Veg' ? 'badge-veg' : food.foodType == 'Non-Veg' ? 'badge-non-veg' : 'badge-both'})" th:text="${food.foodType}">Type</span>
+                                </div>
+                                <h3 class="font-black text-lg text-slate-900 leading-tight" th:text="${food.foodName}">Biryani</h3>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1" th:text="${food.category} + ' • ' + ${food.mealType}">Category</p>
+                            </div>
+                            <div class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-xl border border-emerald-100 flex flex-col items-center">
+                                <span class="font-black text-lg leading-none" th:text="${food.quantity}">0</span>
+                                <span class="text-[7px] font-bold uppercase tracking-tighter">Units</span>
                             </div>
                         </div>
 
                         <div class="info-grid">
                             <div class="info-tile">
-                                <label>Category</label>
-                                <span th:text="${food.category}">Rice</span>
-                            </div>
-                            <div class="info-tile">
-                                <label>Meal Type</label>
-                                <span th:text="${food.mealType}">Dinner</span>
+                                <label>Prepared</label>
+                                <span th:text="${food.preparedTime}">-</span>
                             </div>
                             <div class="info-tile expiry-warning">
                                 <label>Expires In</label>
-                                <span th:text="${food.expiryTime} + ' Hours'">0h</span>
-                            </div>
-                            <div class="info-tile">
-                                <label>Time Prepared</label>
-                                <span th:text="${food.preparedTime}">00:00</span>
+                                <span th:text="${food.expiryTime} + 'h'">-</span>
                             </div>
                         </div>
 
-                        <div class="location-box">
-                            <div class="space-y-3">
-                                <div class="flex items-start gap-3">
-                                    <i class="fas fa-map-marked-alt text-slate-300 mt-1"></i>
-                                    <div class="text-sm">
-                                        <p class="font-bold text-slate-700" th:text="${food.city}">City</p>
-                                        <p class="text-slate-500 text-xs leading-snug" th:text="${food.address}">Full Address</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-3 pt-2 border-t border-slate-200/50">
-                                    <i class="far fa-calendar-alt text-slate-300"></i>
-                                    <p class="text-xs font-bold text-slate-600">
-                                        Pickup: <span th:text="${#dates.format(food.pickupDate, 'dd MMM')}">Date</span> • <span th:text="${food.pickupTime}">Time</span>
-                                    </p>
-                                </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3 overflow-hidden mb-6 mt-2">
+                            <i class="fas fa-map-marker-alt text-emerald-500 shrink-0 text-xs"></i>
+                            <div class="overflow-hidden">
+                                <p class="text-[10px] font-bold text-slate-900 truncate" th:text="${food.address}">Address</p>
+                                <p class="text-[9px] text-slate-400" th:text="${food.city}">City</p>
                             </div>
                         </div>
 
-                        <div class="mb-6" th:if="${food.instructions != null and !food.instructions.isEmpty()}">
-                            <p class="text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest flex items-center gap-2">
-                                <i class="fas fa-info-circle text-emerald-500"></i> Note
-                            </p>
-                            <p class="text-xs italic text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl border-l-4 border-emerald-500" th:text="${food.instructions}">Notes...</p>
+                        <div class="flex gap-2">
+                            <button th:if="${food.fileName != null}"
+                                    type="button"
+                                    th:attr="data-file=${food.fileName}"
+                                    onclick="event.stopPropagation(); openPhotoPreviewDirect(this.getAttribute('data-file'))"
+                                    class="card-btn-photo">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <div class="card-btn-action flex-1">
+                                <i class="fas fa-hand-holding-heart"></i> Details
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: MARKETPLACE (FEED) -->
+        <div id="section-feed" class="hidden-section">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-900">Food Marketplace</h1>
+                    <p class="text-slate-400 font-medium">Browse available surplus food ready for immediate rescue.</p>
+                </div>
+            </div>
+
+            <div class="fb-card !p-4 mb-8 flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[150px]">
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Food Type</label>
+                    <select id="filterType" onchange="filterFoodItems()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold">
+                        <option value="all">All Types</option>
+                        <option value="Veg">Veg Only</option>
+                        <option value="Non-Veg">Non-Veg Only</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[150px]">
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Category</label>
+                    <select id="filterCategory" onchange="filterFoodItems()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold">
+                        <option value="all">All Categories</option>
+                        <option value="Rice">Rice</option>
+                        <option value="Curry">Curry</option>
+                    </select>
+                </div>
+                <button onclick="clearFilters()" class="h-[42px] px-6 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs hover:bg-red-50 hover:text-red-500 transition">Reset</button>
+            </div>
+
+            <div id="foodGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:each="food : ${availableFoodList}"
+                     class="food-card"
+                     onclick="openFoodModal(this)"
+                     th:attr="data-id=${food.id},
+                              data-name=${food.foodName},
+                              data-type=${food.foodType},
+                              data-meal=${food.mealType},
+                              data-category=${food.category},
+                              data-qty=${food.quantity},
+                              data-prep=${food.preparedTime},
+                              data-exp=${food.expiryTime},
+                              data-addr=${food.address},
+                              data-city=${food.city},
+                              data-date=${food.pickupDate != null ? #dates.format(food.pickupDate, 'dd MMM, yyyy') : 'N/A'},
+                              data-time=${food.pickupTime},
+                              data-contact=${food.contactName},
+                              data-mobile=${food.mobile},
+                              data-notes=${food.instructions},
+                              data-status=${food.statusrequest},
+                              data-file=${food.fileName},
+                              data-search-name=${#strings.toLowerCase(food.foodName != null ? food.foodName : '')},
+                              data-search-city=${#strings.toLowerCase(food.city != null ? food.city : '')}">
+
+                    <div class="flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span th:class="'inline-block px-2 py-0.5 text-[8px] font-black uppercase rounded mb-1.5 ' + (${food.foodType == 'Veg' ? 'badge-veg' : food.foodType == 'Non-Veg' ? 'badge-non-veg' : 'badge-both'})" th:text="${food.foodType}">Type</span>
+                                <h3 class="font-black text-xl text-slate-900" th:text="${food.foodName}">Item</h3>
+                            </div>
+                            <span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-lg font-black text-sm" th:text="${food.quantity}">Qty</span>
                         </div>
 
-                        <div class="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
-                                    <i class="fas fa-user-tie"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-black text-slate-900" th:text="${food.contactName}">Contact</p>
-                                    <p class="text-[10px] font-bold text-slate-400" th:text="${food.mobile}">Phone</p>
-                                </div>
+                        <div class="info-grid">
+                            <div class="info-tile"><label>Meal</label><span th:text="${food.mealType}">-</span></div>
+                            <div class="info-tile expiry-warning"><label>Expires</label><span th:text="${food.expiryTime} + 'h'">-</span></div>
+                        </div>
+
+                        <div class="text-[10px] text-slate-500 flex gap-2 items-center mb-6 p-3 bg-slate-50 rounded-xl border border-slate-100 mt-2">
+                            <i class="fas fa-map-marker-alt text-emerald-500 shrink-0"></i>
+                            <span class="truncate" th:text="${food.address} + ', ' + ${food.city}">City</span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button th:if="${food.fileName != null}"
+                                    type="button"
+                                    th:attr="data-file=${food.fileName}"
+                                    onclick="event.stopPropagation(); openPhotoPreviewDirect(this.getAttribute('data-file'))"
+                                    class="card-btn-photo">
+                                <i class="fas fa-camera text-lg"></i>
+                            </button>
+                            <div class="card-btn-action flex-1">
+                                <i class="fas fa-search-plus"></i> View Details
                             </div>
-                            <a th:href="@{/ngo/claim/{id}(id=${food.id})}" class="bg-emerald-600 text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
-                                Rescue
-                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Empty Results State -->
             <div id="noResults" class="fb-card text-center py-20 hidden">
-                <i class="fas fa-filter text-4xl text-slate-200 mb-4"></i>
-                <p class="text-slate-500 font-bold">No food items match your selected filters.</p>
-                <button onclick="clearFilters()" class="text-emerald-600 font-bold mt-2 hover:underline">Clear all filters</button>
+                <i class="fas fa-search text-3xl text-slate-200 mb-3"></i>
+                <p class="text-slate-400 font-bold">No results found.</p>
             </div>
         </div>
 
-        <!-- SECTION: REGISTERED DETAILS -->
-        <div id="section-details" class="hidden-section">
+        <!-- SECTION: MY CLAIMS -->
+        <div id="section-claims" class="hidden-section">
             <div class="mb-8">
-                <h1 class="text-3xl font-black text-slate-900">Organization Profile</h1>
-                <p class="text-slate-400 font-medium">Verified Registration & Contact Information</p>
+                <h1 class="text-3xl font-black text-slate-900">My Food Claims</h1>
+                <p class="text-slate-400 font-medium">Track your active collections and historical rescues.</p>
             </div>
-            <div class="fb-card" th:if="${ngo != null}">
-                <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
-                    <div class="flex items-center gap-6">
-                        <div class="w-24 h-24 bg-emerald-600 rounded-[2rem] flex items-center justify-center text-white text-3xl shadow-xl">
-                            <i class="fas fa-university"></i>
+
+            <div class="mb-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i class="fas fa-clock text-xs"></i>
+                    </div>
+                    <h2 class="text-xl font-black text-slate-800">Current Claims (To be collected)</h2>
+                </div>
+                <div class="fb-card overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                        <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                            <th class="pb-5 pr-4">Food Item</th>
+                            <th class="pb-5 pr-4">Units</th>
+                            <th class="pb-5 pr-4 text-center">Donor Location</th>
+                            <th class="pb-5 pr-4">Collection Date</th>
+                            <th class="pb-5 pr-4">Request Status</th>
+                            <th class="pb-5 text-right">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                        <tr th:each="food : ${pendingFood}" class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition">
+                            <td class="py-4 pr-4">
+                                <span class="font-bold text-slate-900" th:text="${food.foodName}">Name</span>
+                                <span class="block text-[10px] text-slate-400 uppercase font-black" th:text="${food.category}">Category</span>
+                            </td>
+                            <td class="py-4 pr-4">
+                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-black" th:text="${food.quantity}">0</span>
+                            </td>
+                            <td class="py-4 pr-4 text-center">
+                                <a th:href="@{'https://www.google.com/maps/search/?api=1&query=' + ${food.address} + ', ' + ${food.city}}"
+                                   target="_blank"
+                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                    <i class="fas fa-map-marker-alt"></i> View Map
+                                </a>
+                            </td>
+                            <td class="py-4 pr-4 text-slate-500 font-medium" th:text="${food.pickupDate != null ? #dates.format(food.pickupDate, 'dd MMM, yyyy') : 'N/A'}">Date</td>
+                            <td class="py-4 pr-4">
+                                <span class="text-[10px] font-black uppercase text-slate-400" th:text="${food.statusrequest ?: 'Processing'}">Status</span>
+                            </td>
+                            <td class="py-4 text-right">
+                                <form th:action="@{'/ngo/rescue/' + ${food.id}}" method="post">
+                                    <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                                        <i class="fas fa-check-circle mr-1"></i> Mark as Rescued
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(pendingFood)}">
+                            <td colspan="6" class="py-12 text-center text-slate-400 italic">
+                                No active collections pending.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <i class="fas fa-history text-xs"></i>
+                    </div>
+                    <h2 class="text-xl font-black text-slate-800">Rescued Food History</h2>
+                </div>
+                <div class="fb-card overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                        <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                            <th class="pb-5 pr-4">Food Item</th>
+                            <th class="pb-5 pr-4">Quantity</th>
+                            <th class="pb-5 pr-4">Rescue Date</th>
+                            <th class="pb-5 text-right">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                        <tr th:each="food : ${rescuedFood}" class="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition">
+                            <td class="py-4 pr-4 font-bold text-slate-900" th:text="${food.foodName}">Name</td>
+                            <td class="py-4 pr-4 text-slate-500 font-medium" th:text="${food.quantity}">0</td>
+                            <td class="py-4 pr-4 text-slate-400" th:text="${food.pickupDate != null ? #dates.format(food.pickupDate, 'dd MMM, yyyy') : 'N/A'}">Date</td>
+                            <td class="py-4 text-right">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full uppercase">
+                                        <i class="fas fa-check"></i> Rescued
+                                    </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(rescuedFood)}">
+                            <td colspan="4" class="py-12 text-center text-slate-400 italic">
+                                Your rescue history will appear here.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: NGO REGISTERED DETAILS (FORM) -->
+        <div id="section-details" class="hidden-section">
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-900">Organization Profile</h1>
+                    <p class="text-slate-400 font-medium">Manage and view your registered partnership details</p>
+                </div>
+            </div>
+
+            <form id="ngoRegistrationForm" th:action="${ngo != null && ngo.id != null ? '/update/ngo' : '/register/ngo'}" th:object="${ngo}" method="post" class="fb-card space-y-12" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}">
+
+                <section>
+                    <div class="form-section-title"><i class="fas fa-id-card"></i> Identity & Legal</div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="input-group md:col-span-2">
+                            <label>NGO Full Legal Name</label>
+                            <input type="text" th:field="*{ngoName}" placeholder="Organization Name" required>
                         </div>
-                        <div>
-                            <h2 class="text-2xl font-black text-slate-900" th:text="${ngo.ngoName}">Organization Name</h2>
-                            <span class="inline-block mt-3 px-3 py-1 bg-emerald-100 text-emerald-600 text-[10px] font-black rounded-full uppercase" th:text="${ngo.ngoType}">Type</span>
+                        <div class="input-group">
+                            <label>Registration Number</label>
+                            <input type="text" th:field="*{registrationNumber}" placeholder="Reg ID" required>
+                        </div>
+                        <div class="input-group">
+                            <label>NGO Type</label>
+                            <select th:field="*{ngoType}" required>
+                                <option value="">Select Type</option>
+                                <option value="charity">Registered Charity</option>
+                                <option value="foundation">Foundation</option>
+                                <option value="trust">Trust</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="form-section-title"><i class="fas fa-key"></i> Credentials</div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="input-group">
+                            <label>Official Email</label>
+                            <input type="email" th:field="*{email}" placeholder="admin@ngo.org" required>
+                        </div>
+                        <div class="input-group">
+                            <label th:text="${ngo != null && ngo.id != null ? 'New Password (Optional)' : 'Password'}">Password</label>
+                            <input type="password" th:field="*{password}" placeholder="••••••••" th:required="${ngo == null || ngo.id == null}">
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="form-section-title"><i class="fas fa-map-marker-alt"></i> Location & Contact</div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="input-group">
+                            <label>Contact Person</label>
+                            <input type="text" th:field="*{contactPerson}" placeholder="Full Name" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Daily Food Capacity (People)</label>
+                            <input type="text" th:field="*{capacity}" placeholder="Daily serve capacity" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Mobile Number</label>
+                            <input type="tel" th:field="*{mobile}" placeholder="+1..." required>
+                        </div>
+                        <div class="input-group md:col-span-2 space-y-4">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="!mb-0 text-xs">HQ Address</label>
+                                <div class="flex gap-2">
+                                    <button type="button" class="locate-btn" onclick="geocodeFromFields()">Find on Map</button>
+                                    <button type="button" class="locate-btn border-emerald-500 text-emerald-600" onclick="locateMe()">Use GPS</button>
+                                </div>
+                            </div>
+                            <textarea id="address" th:field="*{address}" rows="2" oninput="handleManualInput()" placeholder="Street address..." required></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>City</label>
+                            <input type="text" id="city" th:field="*{city}" oninput="handleManualInput()" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Pincode</label>
+                            <input type="text" id="pincode" th:field="*{pincode}" oninput="handleManualInput()" required>
+                        </div>
+                    </div>
+                    <div id="map" class="mt-4"></div>
+                    <div class="mt-6 flex flex-wrap gap-4 items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <span class="text-[10px] font-black uppercase text-slate-400">Verified GPS Data</span>
+                        <input type="hidden" id="latitude" th:field="*{latitude}">
+                        <input type="hidden" id="longitude" th:field="*{longitude}">
+                        <input type="hidden" id="altitude" th:field="*{altitude}">
+                        <div class="coordinate-badge">Lat: <span id="latDisplay">--.----</span></div>
+                        <div class="coordinate-badge">Lng: <span id="lngDisplay">--.----</span></div>
+                        <div class="coordinate-badge">Alt: <span id="altDisplay">--.--</span>m</div>
+                        <div id="statusIndicator" class="text-[10px] font-black text-slate-300">WAITING</div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="form-section-title">
+                        <i class="fas fa-file-shield"></i> Verification Documents
+                    </div>
+                    <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-slate-300 mb-2"></i>
+                        <p class="font-bold text-slate-600" th:text="${ngo != null && ngo.id != null ? 'Update Registration Certificate (Optional)' : 'Upload Registration Certificate'}">Registration Certificate</p>
+                        <p class="text-xs text-slate-400">PDF, JPG or PNG (Max 5MB)</p>
+                        <input type="file" id="fileInput" name="verificationFile" class="hidden" onchange="updateFileLabel(this)">
+                        <div id="fileInfo" class="mt-3 text-sm font-bold text-emerald-600 hidden">
+                            <i class="fas fa-file-alt mr-1"></i> <span id="fileNameDisplay">file_name.pdf</span>
+                        </div>
+                    </div>
+                </section>
+
+                <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-lg hover:bg-emerald-700 transition shadow-xl shadow-emerald-100 flex items-center justify-center gap-3">
+                    <i class="fas fa-save"></i> Save Organization Changes
+                </button>
+            </form>
+        </div>
+
+        <!-- SECTION: SETTINGS -->
+        <div id="section-settings" class="hidden-section">
+            <div class="mb-8">
+                <h1 class="text-3xl font-black text-slate-900">Settings & Alerts</h1>
+                <p class="text-slate-400 font-medium">Customize how you receive alerts and manage account security.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="fb-card space-y-8">
+                    <div class="form-section-title"><i class="fas fa-bell"></i> Notification Preferences</div>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-900">Email Alerts</p>
+                                <p class="text-xs text-slate-400">Surplus availability in your city.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-900">SMS / WhatsApp Alerts</p>
+                                <p class="text-xs text-slate-400">Critical items expiring within 2 hours.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
                         </div>
                     </div>
                 </div>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="info-tile">
-                        <label>Official Email</label>
-                        <span th:text="${ngo.email}">Loading...</span>
-                    </div>
-                    <div class="info-tile">
-                        <label>Contact Person</label>
-                        <span th:text="${ngo.contactPerson}">Loading...</span>
-                    </div>
-                    <div class="info-tile">
-                        <label>Mobile Number</label>
-                        <span th:text="${ngo.mobile}">Loading...</span>
-                    </div>
-                    <div class="info-tile">
-                        <label>Office Address</label>
-                        <span th:text="${ngo.address}">Loading...</span>
+
+                <div class="fb-card space-y-8">
+                    <div class="form-section-title"><i class="fas fa-shield-alt"></i> Security & Danger Zone</div>
+                    <div class="space-y-4">
+                        <button class="w-full bg-slate-50 text-slate-900 py-3 rounded-xl font-bold text-sm hover:bg-slate-100 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                        <button class="w-full text-red-500 font-bold text-sm py-3 rounded-xl hover:bg-red-50 transition border border-transparent hover:border-red-100">
+                            <i class="fas fa-trash-alt mr-2"></i> Deactivate Organization Account
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 </main>
 
-<script>
-    document.getElementById('display-date').innerText = new Date().toLocaleDateString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE&callback=initMap" async defer></script>
+
+<script th:inline="javascript">
+    const apiKey = "AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE";
+    let map, marker, geocoder, elevationService;
+    let currentPhotoFile = null;
+
+    window.onload = () => {
+        const displayDate = document.getElementById('display-date');
+        if (displayDate) {
+            displayDate.innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
+        }
+    };
 
     /**
-     * Client-side Filtering Logic
+     * Detail Modal Logic - Maps all fields from FoodDonar.java
      */
+    function openFoodModal(el) {
+        const data = el.dataset;
+        currentPhotoFile = data.file;
+
+        const viewPhotoBtn = document.getElementById('viewPhotoBtn');
+        if (!currentPhotoFile || currentPhotoFile === 'null' || currentPhotoFile === '') {
+            viewPhotoBtn.classList.add('hidden');
+        } else {
+            viewPhotoBtn.classList.remove('hidden');
+        }
+
+        document.getElementById('modalFoodName').innerText = data.name || 'N/A';
+
+        const typeEl = document.getElementById('modalFoodType');
+        typeEl.innerText = data.type || 'N/A';
+        typeEl.className = 'px-3 py-1 text-[10px] font-black uppercase rounded-full ' +
+            (data.type === 'Veg' ? 'badge-veg' : data.type === 'Non-Veg' ? 'badge-non-veg' : 'badge-both');
+
+        document.getElementById('modalCategory').innerText = data.category || 'N/A';
+        document.getElementById('modalMealType').innerText = data.meal || 'N/A';
+        document.getElementById('modalQuantity').innerText = data.qty || '0';
+        document.getElementById('modalPreparedTime').innerText = data.prep || 'N/A';
+        document.getElementById('modalExpiryTime').innerText = (data.exp || '0') + ' Hours';
+        document.getElementById('modalAddress').innerText = data.addr || 'N/A';
+        document.getElementById('modalCity').innerText = data.city || 'N/A';
+        document.getElementById('modalPickupDate').innerText = data.date || 'N/A';
+        document.getElementById('modalPickupTime').innerText = data.time || 'N/A';
+        document.getElementById('modalContactName').innerText = data.contact || 'N/A';
+        document.getElementById('modalMobile').innerText = data.mobile || 'N/A';
+        document.getElementById('modalInstructions').innerText = data.notes || 'No special instructions provided.';
+        document.getElementById('modalStatusRequest').innerText = 'Status: ' + (data.status || 'Pending');
+        document.getElementById('modalRescueBtn').href = '/dashboard/claim/' + data.id;
+
+        // Set dynamic Google Maps URL
+        const mapsQuery = encodeURIComponent(`${data.addr}, ${data.city}`);
+        document.getElementById('modalMapsLink').href = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+        document.getElementById('foodDetailModal').classList.add('open');
+    }
+
+    function closeFoodModal(e) {
+        if(e.target === document.getElementById('foodDetailModal')) {
+            document.getElementById('foodDetailModal').classList.remove('open');
+        }
+    }
+
+    function openPhotoPreview() {
+        if (currentPhotoFile) {
+            document.getElementById('fullSizePhoto').src = '/files/' + currentPhotoFile;
+            document.getElementById('photoPreviewModal').classList.add('open');
+        }
+    }
+
+    function openPhotoPreviewDirect(file) {
+        if (file && file !== 'null' && file !== '') {
+            document.getElementById('fullSizePhoto').src = '/files/' + file;
+            document.getElementById('photoPreviewModal').classList.add('open');
+        }
+    }
+
+    // Sidebar & Navigation
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('hidden');
+    }
+
+    function switchSection(id, el) {
+        ['overview', 'details', 'feed', 'claims', 'settings'].forEach(s => {
+            const sec = document.getElementById('section-' + s);
+            if(sec) sec.classList.add('hidden-section');
+        });
+        const targetSection = document.getElementById('section-' + id);
+        if (targetSection) targetSection.classList.remove('hidden-section');
+
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        if (el) el.classList.add('active');
+
+        if(window.innerWidth < 1024) toggleSidebar();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Marketplace Filter
     function filterFoodItems() {
         const searchTerm = document.getElementById('mainSearchInput').value.toLowerCase();
         const typeFilter = document.getElementById('filterType').value;
         const catFilter = document.getElementById('filterCategory').value;
-        const mealFilter = document.getElementById('filterMeal').value;
-
         const cards = document.querySelectorAll('#foodGrid .food-card');
         let visibleCount = 0;
-
         cards.forEach(card => {
-            const name = card.getAttribute('data-name');
-            const city = card.getAttribute('data-city');
+            const name = (card.getAttribute('data-search-name') || '').toLowerCase();
+            const city = (card.getAttribute('data-search-city') || '').toLowerCase();
             const type = card.getAttribute('data-type');
-            const category = card.getAttribute('data-category');
-            const meal = card.getAttribute('data-meal');
-
-            const matchesSearch = name.includes(searchTerm) || city.includes(searchTerm);
-            const matchesType = typeFilter === 'all' || type === typeFilter;
-            const matchesCat = catFilter === 'all' || category === catFilter;
-            const matchesMeal = mealFilter === 'all' || meal === mealFilter;
-
-            if (matchesSearch && matchesType && matchesCat && matchesMeal) {
-                card.classList.remove('hidden-card');
-                visibleCount++;
-            } else {
-                card.classList.add('hidden-card');
-            }
+            const cat = card.getAttribute('data-category');
+            const matches = (name.includes(searchTerm) || city.includes(searchTerm)) &&
+                (typeFilter === 'all' || type === typeFilter) &&
+                (catFilter === 'all' || cat === catFilter);
+            card.classList.toggle('hidden-card', !matches);
+            if(matches) visibleCount++;
         });
-
-        // Toggle no results message
         const noResults = document.getElementById('noResults');
-        if (visibleCount === 0) {
-            noResults.classList.remove('hidden');
-        } else {
-            noResults.classList.add('hidden');
-        }
+        if (noResults) noResults.classList.toggle('hidden', visibleCount > 0);
     }
 
     function clearFilters() {
         document.getElementById('mainSearchInput').value = '';
         document.getElementById('filterType').value = 'all';
         document.getElementById('filterCategory').value = 'all';
-        document.getElementById('filterMeal').value = 'all';
         filterFoodItems();
     }
 
-    function switchSection(sectionId, element) {
-        document.getElementById('section-overview').classList.add('hidden-section');
-        document.getElementById('section-details').classList.add('hidden-section');
-        document.getElementById('section-feed').classList.add('hidden-section');
+    // Google Maps logic
+    function initMap() {
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        const latVal = latInput ? latInput.value : 20.5937;
+        const lngVal = lngInput ? lngInput.value : 78.9629;
 
-        const target = document.getElementById('section-' + sectionId);
-        if(target) target.classList.remove('hidden-section');
+        const defaultLocation = { lat: parseFloat(latVal) || 20.5937, lng: parseFloat(lngVal) || 78.9629 };
 
-        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-        element.classList.add('active');
+        geocoder = new google.maps.Geocoder();
+        elevationService = new google.maps.ElevationService();
+        const mapContainer = document.getElementById("map");
+        if (!mapContainer) return;
 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        map = new google.maps.Map(mapContainer, {
+            zoom: latVal && latVal != 20.5937 ? 15 : 5,
+            center: defaultLocation,
+            mapTypeControl: false,
+            streetViewControl: false,
+            styles: [{"featureType": "poi", "stylers": [{"visibility": "off"}]}]
+        });
+
+        marker = new google.maps.Marker({ position: defaultLocation, map: map, draggable: true });
+
+        if(latVal && lngVal) {
+            updateCoordinates(latVal, lngVal, document.getElementById('altitude') ? document.getElementById('altitude').value : 0);
+        }
+
+        google.maps.event.addListener(marker, 'dragend', () => {
+            const pos = marker.getPosition();
+            fetchDetailsFromCoords(pos.lat(), pos.lng());
+        });
+        map.addListener("click", (e) => {
+            marker.setPosition(e.latLng);
+            fetchDetailsFromCoords(e.latLng.lat(), e.latLng.lng());
+        });
+    }
+
+    function locateMe() {
+        if (!navigator.geolocation) { showToast("GPS not supported", "error"); return; }
+        const si = document.getElementById('statusIndicator');
+        if (si) si.innerText = "GPS SYNCING...";
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const { latitude, longitude, altitude } = pos.coords;
+            const p = { lat: latitude, lng: longitude };
+            if (map) {
+                map.setCenter(p);
+                map.setZoom(17);
+                marker.setPosition(p);
+            }
+            fetchDetailsFromCoords(latitude, longitude, altitude);
+        }, () => showToast("GPS Error", "error"), { enableHighAccuracy: true });
+    }
+
+    async function fetchDetailsFromCoords(lat, lng, alt = null) {
+        updateCoordinates(lat, lng, alt);
+        geocoder.geocode({ location: { lat, lng } }, (res, status) => {
+            if (status === "OK" && res[0]) {
+                const addr = res[0];
+                const addressEl = document.getElementById('address');
+                if (addressEl) addressEl.value = addr.formatted_address;
+                addr.address_components.forEach(c => {
+                    if (c.types.includes('locality')) {
+                        const cityEl = document.getElementById('city');
+                        if (cityEl) cityEl.value = c.long_name;
+                    }
+                    if (c.types.includes('postal_code')) {
+                        const pinEl = document.getElementById('pincode');
+                        if (pinEl) pinEl.value = c.long_name;
+                    }
+                });
+            }
+        });
+        if (alt === null) {
+            elevationService.getElevationForLocations({ locations: [{ lat, lng }] }, (r, s) => {
+                if (s === "OK" && r[0]) updateCoordinates(lat, lng, r[0].elevation);
+            });
+        }
+    }
+
+    async function geocodeFromFields() {
+        const addrEl = document.getElementById('address');
+        const cityEl = document.getElementById('city');
+        if(!addrEl || !cityEl) return;
+        const addr = addrEl.value;
+        const city = cityEl.value;
+        if(!addr || !city) return;
+        geocoder.geocode({ address: `${addr}, ${city}` }, (res, status) => {
+            if (status === "OK" && res[0]) {
+                const { lat, lng } = res[0].geometry.location;
+                const p = { lat: lat(), lng: lng() };
+                if (map) {
+                    map.setCenter(p);
+                    map.setZoom(17);
+                    marker.setPosition(p);
+                }
+                fetchDetailsFromCoords(p.lat, p.lng);
+            }
+        });
+    }
+
+    let debounce;
+    function handleManualInput() { clearTimeout(debounce); debounce = setTimeout(geocodeFromFields, 2000); }
+
+    function updateCoordinates(lat, lng, alt) {
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        const altInput = document.getElementById('altitude');
+        const latD = document.getElementById('latDisplay');
+        const lngD = document.getElementById('lngDisplay');
+        const altD = document.getElementById('altDisplay');
+        const si = document.getElementById('statusIndicator');
+
+        if (latInput) latInput.value = lat;
+        if (lngInput) lngInput.value = lng;
+        if (altInput) altInput.value = alt || 0;
+        if (latD) latD.innerText = parseFloat(lat).toFixed(6);
+        if (lngD) lngD.innerText = parseFloat(lng).toFixed(6);
+        if (altD) altD.innerText = alt ? parseFloat(alt).toFixed(2) : "0.00";
+        if (si) { si.innerText = "VERIFIED"; si.style.color = "#10b981"; }
+    }
+
+    function showToast(m, t = "success") {
+        console.log(`[${t.toUpperCase()}] ${m}`);
+    }
+
+    function updateFileLabel(input) {
+        if (input.files[0]) {
+            const fi = document.getElementById('fileInfo');
+            const fnd = document.getElementById('fileNameDisplay');
+            if (fi) fi.classList.remove('hidden');
+            if (fnd) fnd.innerText = input.files[0].name;
+        }
     }
 </script>
 </body>
