@@ -335,6 +335,37 @@
 </head>
 <body>
 
+<!-- Notification Toast System -->
+<div th:if="${error}" id="errorToast" class="fixed top-24 right-6 z-[100] transform transition-all duration-500 translate-x-0">
+    <div class="bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border-l-8 border-red-800">
+        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Action Prevented</p>
+            <p class="font-bold" th:text="${error}">Error message goes here</p>
+        </div>
+        <button onclick="document.getElementById('errorToast').style.display='none'" class="ml-4 hover:rotate-90 transition-transform">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<div th:if="${success}" id="successToast" class="fixed top-24 right-6 z-[100] transform transition-all duration-500 translate-x-0">
+    <div class="bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border-l-8 border-emerald-800">
+        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Success</p>
+            <p class="font-bold" th:text="${success}">Success message goes here</p>
+        </div>
+        <button onclick="document.getElementById('successToast').style.display='none'" class="ml-4 hover:rotate-90 transition-transform">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
 <!-- Photo Preview Modal -->
 <div id="photoPreviewModal" class="photo-modal-overlay" onclick="this.classList.remove('open')">
     <div class="photo-container" onclick="event.stopPropagation()">
@@ -470,19 +501,19 @@
         </div>
 
         <nav class="space-y-1 flex-1">
-            <div class="nav-link active" onclick="switchSection('overview', this)">
+            <div id="nav-overview" class="nav-link active" onclick="switchSection('overview', this)">
                 <i class="fas fa-th-large w-5"></i> Overview
             </div>
-            <div class="nav-link" onclick="switchSection('feed', this)">
+            <div id="nav-feed" class="nav-link" onclick="switchSection('feed', this)">
                 <i class="fas fa-utensils w-5"></i> Marketplace
             </div>
-            <div class="nav-link" onclick="switchSection('claims', this)">
+            <div id="nav-claims" class="nav-link" onclick="switchSection('claims', this)">
                 <i class="fas fa-clipboard-check w-5"></i> My Claims
             </div>
-            <div class="nav-link" onclick="switchSection('details', this)">
+            <div id="nav-details" class="nav-link" onclick="switchSection('details', this)">
                 <i class="fas fa-id-card w-5"></i> Org Profile
             </div>
-            <div class="nav-link" onclick="switchSection('settings', this)">
+            <div id="nav-settings" class="nav-link" onclick="switchSection('settings', this)">
                 <i class="fas fa-cog w-5"></i> Settings
             </div>
         </nav>
@@ -508,7 +539,7 @@
             </button>
             <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
                 <i class="fas fa-search text-slate-400 text-xs"></i>
-                <input type="text" id="mainSearchInput" placeholder="Find food or city..." oninput="filterFoodItems()" class="bg-transparent border-none outline-none text-sm w-40 md:w-64">
+                <input type="text" id="mainSearchInput" placeholder="Search name, city or type...   " oninput="filterFoodItems()" class="bg-transparent border-none outline-none text-sm w-40 md:w-64">
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -536,14 +567,14 @@
                     <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-2">
                         <i class="fas fa-truck-loading"></i>
                     </div>
-                    <span class="text-xl font-black text-slate-900">12</span>
+                    <span class="text-xl font-black text-slate-900" th:text="${totalAllocations ?: '12'}">12</span>
                     <span class="text-[10px] uppercase font-bold text-slate-400">Claims Made</span>
                 </div>
                 <div class="fb-card flex flex-col items-center text-center !p-6">
                     <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-2">
                         <i class="fas fa-utensils"></i>
                     </div>
-                    <span class="text-xl font-black text-slate-900">45kg</span>
+                    <span class="text-xl font-black text-slate-900" th:text="${totalRescued ?: '45kg'}">45kg</span>
                     <span class="text-[10px] uppercase font-bold text-slate-400">Food Rescued</span>
                 </div>
                 <div class="fb-card flex flex-col items-center text-center !p-6">
@@ -564,7 +595,7 @@
 
             <div class="mb-6 flex justify-between items-end">
                 <h2 class="text-xl font-extrabold text-slate-900">Quick Pickup Opportunities</h2>
-                <button onclick="switchSection('feed', document.querySelector('.nav-link i.fa-utensils').parentElement)" class="text-xs font-black text-emerald-600 hover:underline">
+                <button onclick="switchSection('feed', document.getElementById('nav-feed'))" class="text-xs font-black text-emerald-600 hover:underline">
                     Explore Marketplace <i class="fas fa-chevron-right ml-1"></i>
                 </button>
             </div>
@@ -643,16 +674,18 @@
 
         <!-- SECTION: MARKETPLACE (FEED) -->
         <div id="section-feed" class="hidden-section">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
                     <h1 class="text-3xl font-black text-slate-900">Food Marketplace</h1>
-                    <p class="text-slate-400 font-medium">Browse available surplus food ready for immediate rescue.</p>
+                    <p class="text-slate-400 font-medium">Search for surplus food by name, category, or city.</p>
                 </div>
+
+
             </div>
 
             <div class="fb-card !p-4 mb-8 flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-[150px]">
-                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Food Type</label>
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Food Type Filter</label>
                     <select id="filterType" onchange="filterFoodItems()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold">
                         <option value="all">All Types</option>
                         <option value="Veg">Veg Only</option>
@@ -660,14 +693,17 @@
                     </select>
                 </div>
                 <div class="flex-1 min-w-[150px]">
-                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Category</label>
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Local Category Filter</label>
                     <select id="filterCategory" onchange="filterFoodItems()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm font-bold">
                         <option value="all">All Categories</option>
                         <option value="Rice">Rice</option>
                         <option value="Curry">Curry</option>
+                        <option value="Meal">Full Meals</option>
                     </select>
                 </div>
-                <button onclick="clearFilters()" class="h-[42px] px-6 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs hover:bg-red-50 hover:text-red-500 transition">Reset</button>
+                <a th:href="@{/dashboard/ngo(section='feed')}" class="h-[46px] px-6 bg-slate-100 text-slate-500 rounded-xl font-black text-xs hover:bg-red-50 hover:text-red-500 transition flex items-center">
+                    <i class="fas fa-sync-alt mr-2"></i> Reset Search
+                </a>
             </div>
 
             <div id="foodGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -729,9 +765,15 @@
                 </div>
             </div>
 
-            <div id="noResults" class="fb-card text-center py-20 hidden">
-                <i class="fas fa-search text-3xl text-slate-200 mb-3"></i>
-                <p class="text-slate-400 font-bold">No results found.</p>
+            <div id="noResults" class="fb-card text-center py-20" th:classappend="${#lists.isEmpty(availableFoodList) ? '' : 'hidden'}">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-search text-3xl text-slate-200"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-800">No Food Items Found</h3>
+                <p class="text-slate-400 font-medium">Try adjusting your search terms or filters.</p>
+                <a th:href="@{/dashboard/ngo(section='feed')}" class="inline-block mt-6 text-emerald-600 font-black hover:underline">
+                    Clear Search
+                </a>
             </div>
         </div>
 
@@ -758,7 +800,7 @@
                             <th class="pb-5 pr-4 text-center">Donor Location</th>
                             <th class="pb-5 pr-4">Collection Date</th>
                             <th class="pb-5 pr-4">Request Status</th>
-                            <th class="pb-5 text-right">Action</th>
+                            <th class="pb-5 text-right">Actions</th>
                         </tr>
                         </thead>
                         <tbody class="text-sm">
@@ -782,11 +824,19 @@
                                 <span class="text-[10px] font-black uppercase text-slate-400" th:text="${food.statusrequest ?: 'Processing'}">Status</span>
                             </td>
                             <td class="py-4 text-right">
-                                <form th:action="@{'/ngo/rescue/' + ${food.id}}" method="post">
-                                    <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
-                                        <i class="fas fa-check-circle mr-1"></i> Mark as Rescued
-                                    </button>
-                                </form>
+                                <div class="flex justify-end gap-2">
+                                    <!-- Reject Claim Button -->
+                                    <a th:href="@{'/dashboard/reject/' + ${food.id}}"
+                                       onclick="return confirm('Are you sure you want to reject this claim? This item will be returned to the marketplace.')"
+                                       class="inline-flex items-center gap-2 bg-slate-100 text-red-600 px-3 py-2 rounded-xl text-xs font-bold hover:bg-red-50 transition border border-transparent hover:border-red-100">
+                                        <i class="fas fa-times-circle"></i> Reject
+                                    </a>
+                                    <!-- Mark as Rescued Button -->
+                                    <a th:href="@{'/dashboard/rescue/' + ${food.id}}"
+                                       class="inline-flex items-center gap-2 bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                                        <i class="fas fa-check-circle"></i> Mark Rescued
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(pendingFood)}">
@@ -843,19 +893,22 @@
             <div class="mb-8 flex items-center justify-between">
                 <div>
                     <h1 class="text-3xl font-black text-slate-900">Organization Profile</h1>
-                    <p class="text-slate-400 font-medium">Manage and view your registered partnership details</p>
+                    <p class="text-slate-400 font-medium">Manage and verify your registered partnership details</p>
                 </div>
             </div>
 
-            <form id="ngoRegistrationForm" th:action="${ngo != null && ngo.id != null ? '/update/ngo' : '/register/ngo'}" th:object="${ngo}" method="post" class="fb-card space-y-12" enctype="multipart/form-data">
+            <!-- Action includes query param for section persistence -->
+            <form id="ngoRegistrationForm" th:action="@{/dashboard/update_ngo(section='details')}" th:object="${ngo}" method="post" class="fb-card space-y-12" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{fileName}">
+                <input type="hidden" th:field="*{filepath}">
 
                 <section>
                     <div class="form-section-title"><i class="fas fa-id-card"></i> Identity & Legal</div>
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="input-group md:col-span-2">
                             <label>NGO Full Legal Name</label>
-                            <input type="text" th:field="*{ngoName}" placeholder="Organization Name" required>
+                            <input type="text" th:field="*{ngoName}" placeholder="Organization Name" >
                         </div>
                         <div class="input-group">
                             <label>Registration Number</label>
@@ -882,8 +935,8 @@
                             <input type="email" th:field="*{email}" placeholder="admin@ngo.org" required>
                         </div>
                         <div class="input-group">
-                            <label th:text="${ngo != null && ngo.id != null ? 'New Password (Optional)' : 'Password'}">Password</label>
-                            <input type="password" th:field="*{password}" placeholder="••••••••" th:required="${ngo == null || ngo.id == null}">
+                            <label>Password (Leave blank to keep current)</label>
+                            <input type="password" th:field="*{password}" placeholder="••••••••" >
                         </div>
                     </div>
                 </section>
@@ -941,17 +994,18 @@
                     </div>
                     <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
                         <i class="fas fa-cloud-upload-alt text-3xl text-slate-300 mb-2"></i>
-                        <p class="font-bold text-slate-600" th:text="${ngo != null && ngo.id != null ? 'Update Registration Certificate (Optional)' : 'Upload Registration Certificate'}">Registration Certificate</p>
+                        <p class="font-bold text-slate-600" th:text="${ngo.fileName != null ? 'Update Certificate (Optional)' : 'Upload Registration Certificate'}">Registration Certificate</p>
                         <p class="text-xs text-slate-400">PDF, JPG or PNG (Max 5MB)</p>
+                        <!-- name="verificationFile" matches controller @RequestParam -->
                         <input type="file" id="fileInput" name="verificationFile" class="hidden" onchange="updateFileLabel(this)">
-                        <div id="fileInfo" class="mt-3 text-sm font-bold text-emerald-600 hidden">
-                            <i class="fas fa-file-alt mr-1"></i> <span id="fileNameDisplay">file_name.pdf</span>
+                        <div id="fileInfo" th:class="${ngo.fileName != null ? 'mt-3 text-sm font-bold text-emerald-600' : 'mt-3 text-sm font-bold text-emerald-600 hidden'}">
+                            <i class="fas fa-file-alt mr-1"></i> <span id="fileNameDisplay" th:text="${ngo.fileName ?: 'file_name.pdf'}">file_name.pdf</span>
                         </div>
                     </div>
                 </section>
 
                 <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-black text-lg hover:bg-emerald-700 transition shadow-xl shadow-emerald-100 flex items-center justify-center gap-3">
-                    <i class="fas fa-save"></i> Save Organization Changes
+                    <i class="fas fa-save"></i> Synchronize Profile Changes
                 </button>
             </form>
         </div>
@@ -1019,6 +1073,14 @@
         if (displayDate) {
             displayDate.innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
         }
+
+        // AUTO-NAVIGATE TO SECTION BASED ON URL QUERY
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetSection = urlParams.get('section');
+        if (targetSection) {
+            const navLink = document.getElementById('nav-' + targetSection);
+            switchSection(targetSection, navLink);
+        }
     };
 
     /**
@@ -1072,14 +1134,14 @@
 
     function openPhotoPreview() {
         if (currentPhotoFile) {
-            document.getElementById('fullSizePhoto').src = '/files/' + currentPhotoFile;
+            document.getElementById('fullSizePhoto').src = '/donor/files/' + currentPhotoFile;
             document.getElementById('photoPreviewModal').classList.add('open');
         }
     }
 
     function openPhotoPreviewDirect(file) {
         if (file && file !== 'null' && file !== '') {
-            document.getElementById('fullSizePhoto').src = '/files/' + file;
+            document.getElementById('fullSizePhoto').src = '/donor/files/' + file;
             document.getElementById('photoPreviewModal').classList.add('open');
         }
     }
@@ -1105,7 +1167,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Marketplace Filter
+    // Marketplace Local Filter (Fallback)
     function filterFoodItems() {
         const searchTerm = document.getElementById('mainSearchInput').value.toLowerCase();
         const typeFilter = document.getElementById('filterType').value;
@@ -1127,21 +1189,15 @@
         if (noResults) noResults.classList.toggle('hidden', visibleCount > 0);
     }
 
-    function clearFilters() {
-        document.getElementById('mainSearchInput').value = '';
-        document.getElementById('filterType').value = 'all';
-        document.getElementById('filterCategory').value = 'all';
-        filterFoodItems();
-    }
-
     // Google Maps logic
     function initMap() {
         const latInput = document.getElementById('latitude');
         const lngInput = document.getElementById('longitude');
-        const latVal = latInput ? latInput.value : 20.5937;
-        const lngVal = lngInput ? lngInput.value : 78.9629;
+        const latVal = (latInput && latInput.value) ? parseFloat(latInput.value) : 20.5937;
+        const lngVal = (lngInput && lngInput.value) ? parseFloat(lngInput.value) : 78.9629;
+        const altVal = document.getElementById('altitude') ? parseFloat(document.getElementById('altitude').value) : 0;
 
-        const defaultLocation = { lat: parseFloat(latVal) || 20.5937, lng: parseFloat(lngVal) || 78.9629 };
+        const defaultLocation = { lat: latVal, lng: lngVal };
 
         geocoder = new google.maps.Geocoder();
         elevationService = new google.maps.ElevationService();
@@ -1149,7 +1205,7 @@
         if (!mapContainer) return;
 
         map = new google.maps.Map(mapContainer, {
-            zoom: latVal && latVal != 20.5937 ? 15 : 5,
+            zoom: latVal !== 20.5937 ? 15 : 5,
             center: defaultLocation,
             mapTypeControl: false,
             streetViewControl: false,
@@ -1157,10 +1213,7 @@
         });
 
         marker = new google.maps.Marker({ position: defaultLocation, map: map, draggable: true });
-
-        if(latVal && lngVal) {
-            updateCoordinates(latVal, lngVal, document.getElementById('altitude') ? document.getElementById('altitude').value : 0);
-        }
+        updateCoordinates(latVal, lngVal, altVal);
 
         google.maps.event.addListener(marker, 'dragend', () => {
             const pos = marker.getPosition();
@@ -1173,9 +1226,8 @@
     }
 
     function locateMe() {
-        if (!navigator.geolocation) { showToast("GPS not supported", "error"); return; }
-        const si = document.getElementById('statusIndicator');
-        if (si) si.innerText = "GPS SYNCING...";
+        if (!navigator.geolocation) return;
+        document.getElementById('statusIndicator').innerText = "GPS SYNCING...";
         navigator.geolocation.getCurrentPosition((pos) => {
             const { latitude, longitude, altitude } = pos.coords;
             const p = { lat: latitude, lng: longitude };
@@ -1185,7 +1237,7 @@
                 marker.setPosition(p);
             }
             fetchDetailsFromCoords(latitude, longitude, altitude);
-        }, () => showToast("GPS Error", "error"), { enableHighAccuracy: true });
+        }, null, { enableHighAccuracy: true });
     }
 
     async function fetchDetailsFromCoords(lat, lng, alt = null) {
@@ -1239,25 +1291,17 @@
     function handleManualInput() { clearTimeout(debounce); debounce = setTimeout(geocodeFromFields, 2000); }
 
     function updateCoordinates(lat, lng, alt) {
-        const latInput = document.getElementById('latitude');
-        const lngInput = document.getElementById('longitude');
-        const altInput = document.getElementById('altitude');
-        const latD = document.getElementById('latDisplay');
-        const lngD = document.getElementById('lngDisplay');
-        const altD = document.getElementById('altDisplay');
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        document.getElementById('altitude').value = alt || 0;
+
+        document.getElementById('latDisplay').innerText = parseFloat(lat).toFixed(6);
+        document.getElementById('lngDisplay').innerText = parseFloat(lng).toFixed(6);
+        document.getElementById('altDisplay').innerText = alt ? parseFloat(alt).toFixed(2) : "0.00";
+
         const si = document.getElementById('statusIndicator');
-
-        if (latInput) latInput.value = lat;
-        if (lngInput) lngInput.value = lng;
-        if (altInput) altInput.value = alt || 0;
-        if (latD) latD.innerText = parseFloat(lat).toFixed(6);
-        if (lngD) lngD.innerText = parseFloat(lng).toFixed(6);
-        if (altD) altD.innerText = alt ? parseFloat(alt).toFixed(2) : "0.00";
-        if (si) { si.innerText = "VERIFIED"; si.style.color = "#10b981"; }
-    }
-
-    function showToast(m, t = "success") {
-        console.log(`[${t.toUpperCase()}] ${m}`);
+        si.innerText = "VERIFIED";
+        si.style.color = "#10b981";
     }
 
     function updateFileLabel(input) {
@@ -1268,6 +1312,14 @@
             if (fnd) fnd.innerText = input.files[0].name;
         }
     }
+
+    // Auto-hide notifications after 5 seconds
+    setTimeout(() => {
+        const errorToast = document.getElementById('errorToast');
+        const successToast = document.getElementById('successToast');
+        if(errorToast) errorToast.classList.add('translate-x-[150%]');
+        if(successToast) successToast.classList.add('translate-x-[150%]');
+    }, 5000);
 </script>
 </body>
 </html>

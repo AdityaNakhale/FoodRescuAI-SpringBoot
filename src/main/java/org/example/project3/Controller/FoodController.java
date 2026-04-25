@@ -7,6 +7,7 @@ import org.example.project3.Repository.DonationRepository;
 import org.example.project3.Repository.FoodRepository;
 import org.example.project3.Repository.NGORepository;
 import jakarta.servlet.http.HttpSession;
+import org.example.project3.service.EmailService;
 import org.example.project3.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -34,6 +35,9 @@ public class FoodController {
         @Autowired
         FoodRepository foodRepository;
 
+        @Autowired
+        EmailService emailService;
+
 
 
     @GetMapping("/foodregistration")
@@ -54,6 +58,10 @@ public class FoodController {
             user.setFilepath(savedPath);
             user.setFileName(originalName);
             foodRepository.save(user);
+
+            // SEND EMAIL
+            emailService.sendDonorRegistrationEmail(user.getEmail(), user.getFullName());
+
             model.addAttribute("submitted", true);
             model.addAttribute("user", user);
         } catch (IOException e) {
@@ -178,6 +186,11 @@ public class FoodController {
             System.out.println("Lng from Form: " + ngo.getLongitude());
 
             ngoRepository.save(ngo);
+
+            // SEND EMAIL
+            emailService.sendNGORegistrationEmail(ngo.getEmail(), ngo.getNgoName());
+
+
             model.addAttribute("submitted", true);
             model.addAttribute("user", ngo);
         } catch (IOException e) {
@@ -231,12 +244,12 @@ public class FoodController {
         try {
             if (donationRepository.existsById(id)) {
                 donationRepository.deleteById(id);
-                redirectAttributes.addFlashAttribute("successMessage", "Donation cancelled successfully.");
+                redirectAttributes.addFlashAttribute("success", "Donation cancelled successfully.");
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Unable to find the donation to delete.");
+                redirectAttributes.addFlashAttribute("error", "Unable to find the donation to delete.");
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error occurred while deleting: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error ", "Error occurred while deleting: " + e.getMessage());
         }
 
         // Redirect back to the history section

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donor Dashboard | Food Bridge AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- INTERNAL CSS - PREMIUM OVERLAY THEME -->
     <style>
@@ -121,6 +122,22 @@
         .upload-zone .main-text { color: #1E293B; font-weight: 800; font-size: 1.25rem; margin-bottom: 0.5rem; }
         .file-status-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: #ECFDF5; padding: 0.6rem 1.25rem; border-radius: 0.75rem; color: #10B981; font-weight: 700; font-size: 0.85rem; margin-top: 1.5rem; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1); }
 
+        /* --- BIG INPUTS FOR DONATE FOOD SECTION --- */
+        #donateFoodSection fieldset { border: 2px solid var(--slate-100); border-radius: 2rem; padding: 2.5rem; margin-bottom: 3rem; background: white; }
+        #donateFoodSection legend {
+            font-size: 0.75rem; font-weight: 900; color: var(--primary);
+            text-transform: uppercase; letter-spacing: 0.2em; padding: 0 1.5rem;
+            background: #f8fafc; border: 2px solid var(--slate-100); border-radius: 50px;
+        }
+        #donateFoodSection input, #donateFoodSection select, #donateFoodSection textarea {
+            padding: 1.25rem 1.5rem; font-size: 1.05rem; font-weight: 700;
+            border: 2px solid var(--slate-100); background: #fdfdfd;
+        }
+        #donateFoodSection input:focus, #donateFoodSection select:focus, #donateFoodSection textarea:focus {
+            background: white; border-color: var(--primary);
+        }
+        #donateFoodSection label { font-size: 0.9rem; color: var(--slate-400); margin-bottom: 0.75rem; }
+
         /* BUTTONS */
         .btn-save { background: var(--primary); color: white; padding: 1.1rem 2.5rem; border: none; border-radius: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3); }
         .btn-secondary { background: white; color: var(--slate-600); padding: 1.1rem 2.5rem; border: 1.5px solid var(--slate-200); border-radius: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
@@ -145,6 +162,8 @@
         #map { width: 100%; height: 380px; border-radius: 1.75rem; border: 2px solid var(--slate-200); margin-top: 1.5rem; }
         .footer { padding: 3rem 2rem; text-align: center; background: white; border-top: 1px solid var(--slate-200); margin-top: auto; }
         .hidden { display: none !important; }
+
+        /* SYNC TOAST (Original) */
         #toast { position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--dark); color: white; padding: 1.25rem 2.5rem; border-radius: 1.25rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 2000; transition: 0.5s; font-weight: 700; }
 
         @media (max-width: 1023px) { .form-grid, .grid-3-col { grid-template-columns: 1fr; } }
@@ -153,6 +172,37 @@
 <body class="sidebar-open">
 
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- Floating Notification System -->
+<div th:if="${error}" id="errorToast" class="fixed top-24 right-6 z-[2000] transform transition-all duration-500 translate-x-0">
+    <div class="bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border-l-8 border-red-800">
+        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">System Alert</p>
+            <p class="font-bold" th:text="${error}">Error message goes here</p>
+        </div>
+        <button onclick="document.getElementById('errorToast').style.display='none'" class="ml-4 hover:rotate-90 transition-transform">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<div th:if="${success}" id="successToast" class="fixed top-24 right-6 z-[2000] transform transition-all duration-500 translate-x-0">
+    <div class="bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border-l-8 border-emerald-800">
+        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Mission Success</p>
+            <p class="font-bold" th:text="${success}">Success message goes here</p>
+        </div>
+        <button onclick="document.getElementById('successToast').style.display='none'" class="ml-4 hover:rotate-90 transition-transform">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
 
 <!-- HEADER (OLD STYLE MENU BAR) -->
 <header>
@@ -197,7 +247,7 @@
     </div>
 </aside>
 
-<main class="main-content">
+<main class="main-content" style="padding-top: calc(var(--header-height) + 2rem); padding-left: 2rem; padding-right: 2rem;">
 
     <!-- 1. DASHBOARD -->
     <div id="dashboardSection" class="hidden">
@@ -236,10 +286,10 @@
         </div>
     </div>
 
-    <!-- 2. DONOR PROFILE (Updated URLs) -->
+    <!-- 2. DONOR PROFILE -->
     <div id="donorDetailsSection" class="card hidden">
         <h3 class="section-title">Donor Registry Details</h3>
-        <form th:action="@{/donor/update-profile}" th:object="${user}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/dashboard/update-profile(section='donorDetailsSection')}"  th:object="${user}" method="post" enctype="multipart/form-data">
             <input type="hidden" th:field="*{id}">
             <input type="hidden" id="latitude" th:field="*{latitude}">
             <input type="hidden" id="longitude" th:field="*{longitude}">
@@ -337,8 +387,8 @@
                 <div class="form-group mt-6 col-span-full"><label>Pickup Address</label><textarea th:field="*{address}" id="donationAddress" rows="3" required placeholder="Where should NGOs pick this up?"></textarea></div>
                 <div class="grid-3-col mt-4">
                     <div class="form-group"><label>City</label><input type="text" th:field="*{city}" id="donationCity"></div>
-                    <div class="form-group"><label>Pickup Date</label><input type="date" th:field="*{pickupDate}" id="pickupDateInput"></div>
-                    <div class="form-group"><label>Pickup Time</label><input type="time" th:field="*{pickupTime}"></div>
+                    <div class="form-group"><label>Pickup Date</label><input type="date" th:field="*{pickupDate}" id="pickupDateInput" required></div>
+                    <div class="form-group"><label>Pickup Time</label><input type="time" th:field="*{pickupTime}" required></div>
                 </div>
                 <button type="button" class="mt-4 locate-btn-sm" onclick="syncAddress()">Use My Registered Address</button>
             </fieldset>
@@ -369,7 +419,10 @@
 
     <!-- 4. DONATED FOOD (History) -->
     <div id="donatedFoodSection" class="card hidden">
-        <h3 class="section-title text-slate-900">Rescue History Log</h3>
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="section-title text-slate-900 !mb-0">Rescue History Log</h3>
+            <button onclick="showSection('donateFoodSection')" class="btn-save !py-2 !px-4 text-sm"><i class="fas fa-plus"></i> New Donation</button>
+        </div>
         <div class="table-wrap">
             <table>
                 <thead>
@@ -402,11 +455,14 @@
                                 <i class="fas fa-pencil-alt"></i>
                             </a>
                             <a th:href="@{/donor/cancelDonation/{id}(id=${donation.id}, section='donatedFoodSection')}"
-                               class="btn-action-cancel" title="Remove" onclick="return confirm('Remove Listing?')">
+                               class="btn-action-cancel" title="Remove" onclick="return confirm('Permanently remove this listing?')">
                                 <i class="fas fa-trash-alt"></i>
                             </a>
                         </div>
                     </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(donations)}">
+                    <td colspan="7" class="text-center py-10 text-slate-400 italic">No donations registered yet.</td>
                 </tr>
                 </tbody>
             </table>
@@ -415,6 +471,7 @@
 </main>
 
 <footer class="footer"><p class="footer-text">© 2026 FoodBridge AI Technologies. Engineered for Zero-Waste Logistics.</p></footer>
+
 <div id="toast">Synced!</div>
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO_ZR9ppMM1msmiZUnVj_qbWJJQqDI2NE&callback=initMap" async defer></script>
@@ -443,7 +500,10 @@
         const lngVal = /*[[${user?.longitude}]]*/ 78.9629;
         const pos = { lat: parseFloat(latVal) || 20.5937, lng: parseFloat(lngVal) || 78.9629 };
         geocoder = new google.maps.Geocoder();
-        map = new google.maps.Map(document.getElementById("map"), { zoom: 12, center: pos, mapTypeControl: false });
+        const mapEl = document.getElementById("map");
+        if(!mapEl) return;
+
+        map = new google.maps.Map(mapEl, { zoom: 12, center: pos, mapTypeControl: false });
         marker = new google.maps.Marker({ position: pos, map: map, draggable: true, animation: google.maps.Animation.DROP });
         google.maps.event.addListener(marker, 'dragend', () => {
             const p = marker.getPosition();
@@ -521,6 +581,7 @@
 
     function showToast(msg) {
         const t = document.getElementById('toast');
+        if(!t) return;
         t.innerText = msg; t.style.transform = "translateX(-50%) translateY(0)";
         setTimeout(() => t.style.transform = "translateX(-50%) translateY(100px)", 3000);
     }
@@ -528,6 +589,14 @@
     document.addEventListener('DOMContentLoaded', () => {
         const activeSection = /*[[${activeSection}]]*/ 'dashboardSection';
         showSection(activeSection);
+
+        // Notification Auto-hide
+        setTimeout(() => {
+            const errorToast = document.getElementById('errorToast');
+            const successToast = document.getElementById('successToast');
+            if(errorToast) errorToast.classList.add('translate-x-[150%]');
+            if(successToast) successToast.classList.add('translate-x-[150%]');
+        }, 5000);
     });
 </script>
 </body>

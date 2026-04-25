@@ -9,6 +9,7 @@ import org.example.project3.Repository.AllocationRequestRepository;
 import org.example.project3.Repository.DonationRepository;
 import org.example.project3.Repository.FoodRepository;
 import org.example.project3.Repository.NGORepository;
+import org.example.project3.service.EmailService;
 import org.example.project3.service.RuleEngineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,6 +35,9 @@ public class ServiceController {
 
     @Autowired
     private AllocationRequestRepository requestRepo;
+
+    @Autowired
+    private EmailService emailService;
 
 
 
@@ -62,6 +66,17 @@ public class ServiceController {
         food.setAssignedNgoId(selected.getId());
         food.setStatusrequest("Assigned");
         donationRepo.save(food);
+
+        // Inside allocateDonation method
+        emailService.sendAllocationEmail(
+                selected.getEmail(),
+                selected.getNgoName(),
+                food.getFoodType(),
+                user.getFullName(),
+                user.getAddress(),  // Ensure user has an address field
+                user.getLatitude(), // Ensure user has lat field
+                user.getLongitude() // Ensure user has lng field
+        );
 
         //5. Audit Log (Persistence)
         AllocationRequest req = new AllocationRequest();

@@ -53,7 +53,8 @@ public class AuthService {
         session.setAttribute("userId", id);
         session.setAttribute("userRole", role);
         session.setAttribute("userName", name);
-        session.setAttribute("user", role.equals("NGO") ? ngoRepository.findById(id).orElse(null) : foodRepository.findById(id).orElse(null));
+        session.setAttribute("userNgo", ngoRepository.findById(id).orElse(null));
+        session.setAttribute("userDonor", foodRepository.findById(id).orElse(null));
     }
 
     public void logout(HttpSession session) {

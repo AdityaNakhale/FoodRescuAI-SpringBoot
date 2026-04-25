@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +30,7 @@ import java.util.Optional;
 @RequestMapping("/dashboard")
 public class DashboardController {
 
-        private static String UPLOAD_DIR = "food-photo/";
+
 
     @Autowired
     FoodRepository userRepository;
@@ -46,7 +47,9 @@ public class DashboardController {
     @GetMapping("/user")
     public String userDashboard(HttpSession session, Model model,
                                 @RequestParam(required = false) String section) {
-        DonorRegistration user = (DonorRegistration) session.getAttribute("user");
+        Long ngoId = (Long) session.getAttribute("userId");
+        DonorRegistration user = (DonorRegistration) session.getAttribute("userDonor");
+        session.setAttribute("user",user);
         if (user == null) {
             return "redirect:/login";
         }
@@ -75,7 +78,7 @@ public class DashboardController {
     public String showUpdateProfileForm(@ModelAttribute DonorRegistration user, HttpSession session,@RequestParam("file") MultipartFile file, @RequestParam String section) throws IOException {
      //handle file upload
         if(!file.isEmpty()) {
-            String uploadDir = "uploads/";
+            String uploadDir = "uploads2/";
             Files.createDirectories(Paths.get(uploadDir));
             String filename = file.getOriginalFilename();
             Path path = Paths.get(uploadDir + filename);
@@ -101,7 +104,7 @@ public class DashboardController {
     }
 
     @GetMapping("/ngo")
-    public String ngoDashboard(HttpSession session, Model model) {
+    public String ngoDashboard(HttpSession session, Model model, @RequestParam(required = false) String section) {
         // 1. Fetch user identification from session
         Long ngoId = (Long) session.getAttribute("userId");
         String role = (String) session.getAttribute("userRole");
@@ -136,6 +139,8 @@ public class DashboardController {
             }
         }
 
+
+
         // 4. Pass data to the view (test2.html)
         model.addAttribute("allocatedFood", pendingFood);
         model.addAttribute("pendingFood", pendingFood);
@@ -145,7 +150,9 @@ public class DashboardController {
 
         // Also fetch all available food for the Marketplace section
         model.addAttribute("availableFoodList", donationRepository.findAll());
-        model.addAttribute("ngo", session.getAttribute("user"));
+        model.addAttribute("ngo", session.getAttribute("userNgo"));
+        model.addAttribute("activeSection", (section != null) ? section : "overview");
+
 
         return "test2";
     }
@@ -182,20 +189,33 @@ public class DashboardController {
      * Handles the "Claim for Rescue" hyperlinking from the Marketplace.
      * Maps to: th:href="@{/ngo/claim/{id}(id=${food.id})}"
      */
+    /**
+     * Updated claimFood to prevent duplicate claims.
+     */
     @GetMapping("/claim/{id}")
-    public String claimFood(@PathVariable Long id, HttpSession session) {
+    public String claimFood(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
         Long ngoId = (Long) session.getAttribute("userId");
         if (ngoId == null) return "redirect:/login";
 
-        // 1. Create a link record in the AllocationRequest table
+        // 1. Check if this NGO has already claimed THIS specific food item
+        List<AllocationRequest> existingRequests = allocationRepo.findByNgoId(ngoId);
+        boolean alreadyClaimed = existingRequests.stream()
+                .anyMatch(req -> req.getFoodId().equals(id));
+
+        if (alreadyClaimed) {
+            // Optional: Add a message to show the user they already claimed this
+            redirectAttributes.addFlashAttribute("error", "You have already claimed this item.");
+            return "redirect:/dashboard/ngo";
+        }
+
+        // 2. Create Allocation if it doesn't exist
         AllocationRequest newRequest = new AllocationRequest();
         newRequest.setFoodId(id);
         newRequest.setNgoId(ngoId);
-        newRequest.setStatus("CLAIMED"); // Initial status
-
+        newRequest.setStatus("CLAIMED");
         allocationRepo.save(newRequest);
 
-        // 2. Notify the Donor by updating the status in the main Food record
+        // 3. Update Food Status
         donationRepository.findById(id).ifPresent(food -> {
             food.setStatusrequest("CLAIMED");
             donationRepository.save(food);
@@ -215,10 +235,10 @@ public class DashboardController {
     }
 
     @PostMapping("/update_ngo")
-    public String updateNGODashboard(@ModelAttribute NGORegistration ngo, HttpSession session,@RequestParam("file") MultipartFile file) throws IOException {
+    public String updateNGODashboard(@ModelAttribute NGORegistration ngo, @RequestParam(defaultValue = "details") String section, HttpSession session,@RequestParam("verificationFile") MultipartFile file) throws IOException {
         //handle file upload
         if(!file.isEmpty()) {
-            String uploadDir = "uploads/";
+            String uploadDir = "uploads2/";
             Files.createDirectories(Paths.get(uploadDir));
             String filename = file.getOriginalFilename();
             Path path = Paths.get(uploadDir + filename);
@@ -229,7 +249,7 @@ public class DashboardController {
         }
         ngoRepository.save(ngo);
         session.setAttribute("ngo", ngo);
-        return "redirect:/dashboard/NGO";
+        return "redirect:/dashboard/ngo?section=" + section;
     }
 
     @GetMapping("/showDonation/{id}")
@@ -243,7 +263,26 @@ public class DashboardController {
 
     }
 
+    @GetMapping("/reject/{foodId}")
+    public String rejectClaim(@PathVariable Long foodId, HttpSession session, RedirectAttributes redirectAttributes) {
+        Long ngoId = (Long) session.getAttribute("userId");
+        if (ngoId == null) return "redirect:/login";
 
+        // 1. Delete the allocation request
+        List<AllocationRequest> requests = allocationRepo.findByNgoId(ngoId);
+        requests.stream()
+                .filter(req -> req.getFoodId().equals(foodId))
+                .forEach(req -> allocationRepo.delete(req));
+
+        // 2. Reset food status to "Pending" (or null) so others can claim it
+        donationRepository.findById(foodId).ifPresent(food -> {
+            food.setStatusrequest("Pending");
+            donationRepository.save(food);
+        });
+
+        redirectAttributes.addFlashAttribute("success", "Claim rejected. The food is now available for others.");
+        return "redirect:/dashboard/ngo?section=claims";
+    }
 
 
 
