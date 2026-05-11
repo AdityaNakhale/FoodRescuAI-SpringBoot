@@ -1,82 +1,131 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Success</title>
-
+    <title>Registration Successful | Food Rescue AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-        body{
-            margin:0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(135deg,#4f46e5,#06b6d4);
-            height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
 
-        .container{
-            background:white;
-            padding:40px 50px;
-            border-radius:12px;
-            text-align:center;
-            box-shadow:0 10px 30px rgba(0,0,0,0.2);
-            max-width:400px;
-            width:100%;
+        .success-card {
+            background: white;
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.15);
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
         }
 
-        .icon{
-            font-size:60px;
-            color:#22c55e;
+        .success-icon-container {
+            width: 100px;
+            height: 100px;
+            background: #dcfce7;
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            color: #10b981;
+            font-size: 3rem;
+            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        h1{
-            margin-top:15px;
-            color:#111827;
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        p{
-            color:#6b7280;
-            font-size:15px;
-            margin-bottom:25px;
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 2px;
+            animation: fall 3s infinite linear;
         }
 
-        button{
-            background:#4f46e5;
-            color:white;
-            border:none;
-            padding:12px 25px;
-            font-size:16px;
-            border-radius:6px;
-            cursor:pointer;
-            transition:0.3s;
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
         }
 
-        button:hover{
-            background:#3730a3;
+        .win-week-badge {
+            background: #0f172a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
         }
-
     </style>
-
 </head>
-
 <body>
 
-<div class="container">
+<!-- Small Confetti Effects -->
+<div class="confetti" style="left: 10%; animation-delay: 0s; background: #10b981;"></div>
+<div class="confetti" style="left: 30%; animation-delay: 1.5s; background: #3b82f6;"></div>
+<div class="confetti" style="left: 70%; animation-delay: 0.5s; background: #f59e0b;"></div>
+<div class="confetti" style="left: 90%; animation-delay: 2s; background: #10b981;"></div>
 
-    <div class="icon">✔</div>
+<div class="success-card">
+    <div class="success-icon-container">
+        <i class="fas fa-check-circle"></i>
+    </div>
 
-    <h1>Registration Successful</h1>
+    <h1 class="text-3xl font-black text-slate-900 mb-4 leading-tight">
+        Registration <br><span class="text-emerald-600">Successful!</span>
+    </h1>
 
-    <p>Your account has been created successfully. You can now login and continue.</p>
+    <p class="text-slate-500 font-medium mb-8">
+        Welcome to the <strong>FoodRescue AI</strong> network. Your account has been created and you are now ready to start rescuing surplus food and feeding those in need.
+    </p>
 
-    <button onclick="window.location.href='/login'">
-        Go to Login
-    </button>
+    <div class="space-y-4">
+        <a onclick="window.location.href='/login'" class="block w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-emerald-700 transition shadow-xl shadow-emerald-100 flex items-center justify-center gap-3">
+            <i class="fas fa-sign-in-alt"></i> Go to Login
+        </a>
 
+        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">
+            Verification email has been sent
+        </p>
+    </div>
+
+    <div class="win-week-badge">
+        <i class="fas fa-trophy text-amber-400"></i> Win Week
+    </div>
 </div>
+
+<footer class="fixed bottom-6 w-full text-center pointer-events-none">
+    <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">
+        Food Rescue AI &copy; 2024 • Making a Difference
+    </p>
+</footer>
 
 </body>
 </html>

@@ -42,7 +42,7 @@ public class AuthService {
      * Handle Admin login (usually checked against hardcoded config or special table).
      */
     public boolean loginAdmin(String email, String password, HttpSession session) {
-        if ("admin@foodbridge.ai".equals(email) && "admin123".equals(password)) {
+        if ("admin@FoodRescueAI.ai".equals(email) && "admin123".equals(password)) {
             setSession(session, 0L, "ADMIN", "System Administrator");
             return true;
         }
